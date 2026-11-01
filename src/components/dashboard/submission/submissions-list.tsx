@@ -44,6 +44,7 @@ export function SubmissionsList() {
         <div className="py-8">
           <EmptyState
             title="Nothing submitted yet"
+            art={{ glyph: "original-research", tone: "vein" }}
             action={
               <Button asChild>
                 <Link href="/dashboard/submissions/new">Start a submission</Link>

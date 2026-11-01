@@ -2,6 +2,8 @@
 
 import { XIcon } from "lucide-react";
 import { useId, useState } from "react";
+import { SUBJECT_ART, TYPE_ART } from "@/components/art/catalog";
+import { Glyph } from "@/components/art/glyph";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,6 +53,7 @@ export function DetailsStep({
           <SelectContent>
             {SUBMITTABLE.map((key) => (
               <SelectItem key={key} value={key}>
+                <Glyph name={TYPE_ART[key].glyph} className="size-4" />
                 {articleTypes[key].label}
               </SelectItem>
             ))}
@@ -154,6 +157,7 @@ export function DetailsStep({
                     })
                   }
                 />
+                <Glyph name={SUBJECT_ART[subject].glyph} className={cn("size-5", !checked && "text-muted-foreground")} />
                 {subject}
               </label>
             );

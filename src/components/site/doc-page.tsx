@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
-/** Policy and guidance pages: ruled header, in-page index, readable column. */
+/**
+ * Policy and guidance pages: ruled header, in-page index, readable column.
+ * `art` (usually a <Scene>) sits beside the header on wide screens.
+ */
 export function DocPage({
   eyebrow,
   title,
@@ -8,6 +11,7 @@ export function DocPage({
   sections,
   children,
   aside,
+  art,
 }: {
   eyebrow: string;
   title: string;
@@ -15,15 +19,19 @@ export function DocPage({
   sections: readonly { id: string; label: string }[];
   children: ReactNode;
   aside?: ReactNode;
+  art?: ReactNode;
 }) {
   return (
     <div className="page-container pb-24">
-      <header className="border-b py-10 md:py-14">
-        <p className="meta-label text-muted-foreground">{eyebrow}</p>
-        <h1 className="mt-3 max-w-4xl font-serif text-headline md:text-display">{title}</h1>
-        {lede ? (
-          <div className="mt-5 max-w-2xl font-serif text-[1.1875rem] leading-relaxed text-pretty">{lede}</div>
-        ) : null}
+      <header className="grid items-center gap-x-12 border-b py-10 md:py-14 lg:grid-cols-12">
+        <div className={art ? "lg:col-span-7" : "lg:col-span-12"}>
+          <p className="meta-label text-muted-foreground">{eyebrow}</p>
+          <h1 className="mt-3 max-w-4xl font-serif text-headline md:text-display">{title}</h1>
+          {lede ? (
+            <div className="mt-5 max-w-2xl font-serif text-[1.1875rem] leading-relaxed text-pretty">{lede}</div>
+          ) : null}
+        </div>
+        {art ? <div className="hidden lg:col-span-4 lg:col-start-9 lg:block">{art}</div> : null}
       </header>
       <div className="grid gap-12 pt-10 lg:grid-cols-12">
         <nav aria-label="On this page" className="hidden lg:col-span-3 lg:block">

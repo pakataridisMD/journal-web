@@ -2,40 +2,59 @@
 @import "tw-animate-css";
 
 /*
- * Design tokens. Reference lock (see the spec): a print-journal canvas —
- * white page, black ink, hairline rules, no shadows, square controls,
- * 8px cards — with one vermillion accent reserved for the primary call to
- * action and the active navigation marker. Light mode only.
+ * Design tokens. Reference lock (see AGENTS.md): a modern anatomical atlas.
+ * Warm atlas paper and near-black ink, hairline rules, no shadows, square
+ * controls, 8px cards. One vermillion accent is reserved for the primary call
+ * to action, the active navigation marker and the logo mark. Light mode only.
  */
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #0a0a0a;
-  --primary-foreground: #ffffff;
-  /* Neutral panels */
-  --secondary: #e7e7e7;
-  --secondary-foreground: #0a0a0a;
-  --muted: #e7e7e7;
-  --muted-foreground: #6e6e6e;
+  /* Atlas paper and printing ink */
+  --paper: #f8f6f1;
+  --ink: #161512;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  /* Cards, inputs and menus are a lighter sheet laid on the paper. */
+  --card: #fffefb;
+  --card-foreground: var(--ink);
+  --popover: #fffefb;
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: #fffefb;
+  /* Warm grey panels */
+  --secondary: #ede9e1;
+  --secondary-foreground: var(--ink);
+  --muted: #ede9e1;
+  /* 5.6:1 on paper, 5.0:1 on muted panels */
+  --muted-foreground: #67625a;
   /* Hover / selected tint (shadcn's "accent" is a neutral state colour) */
-  --accent: #f2f2f2;
-  --accent-foreground: #0a0a0a;
+  --accent: #f0ece4;
+  --accent-foreground: var(--ink);
   --destructive: #b42318;
   --success: #067647;
   --warning: #93370d;
   /* Hairlines for layout; darker borders where a control needs 3:1 contrast */
-  --border: #d9d9d9;
-  --input: #8c8c8c;
-  --ring: #0a0a0a;
-  /* Brand accent: CTAs and the active-nav marker only. Black text = 6.8:1. */
-  --brand: #fc5f2b;
-  --brand-hover: #e9501f;
-  --brand-foreground: #0a0a0a;
+  --border: #dcd6cb;
+  --input: #8f887c;
+  --ring: var(--ink);
+  /* Brand accent: CTAs, the active-nav marker and the logo mark only.
+     Ink text on it is 5.4:1; the hover lightens to keep that contrast. */
+  --brand: #f05a36;
+  --brand-hover: #f4704f;
+  --brand-foreground: var(--ink);
   --radius: 0px;
+
+  /*
+   * Plate tones: the colour code of an anatomical atlas. Decorative only,
+   * for the cut-paper fields inside <Plate> and <Scene>. Never use them for
+   * text, controls, status or layout surfaces.
+   */
+  --plate-artery: #ec6240;
+  --plate-vein: #7e99d6;
+  --plate-nerve: #eec453;
+  --plate-lymph: #89ba97;
+  --plate-eosin: #f0a4b1;
+  --plate-bone: #e5dbca;
 }
 
 @theme inline {
@@ -64,7 +83,7 @@
   --color-brand-foreground: var(--brand-foreground);
 
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
   /* Controls are square; cards are the one rounded surface. */
@@ -81,7 +100,8 @@
   --shadow-lg: 0 0 #0000;
   --shadow-xl: 0 0 #0000;
 
-  /* Type scale: 13 / 16 / 24 / 32 / 40 */
+  /* Type scale: 13 / 16 / 24 / 32 / 40. Large serif sizes are set light,
+     the way a printed atlas sets its plate titles. */
   --text-meta: 0.8125rem;
   --text-meta--line-height: 1.35;
   --text-meta--letter-spacing: 0.02em;
@@ -91,9 +111,11 @@
   --text-headline: 2rem;
   --text-headline--line-height: 1.12;
   --text-headline--letter-spacing: -0.02em;
+  --text-headline--font-weight: 360;
   --text-display: 2.5rem;
   --text-display--line-height: 1.05;
   --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 320;
 
   --container-page: 1296px;
   --container-prose: 42rem;
@@ -116,8 +138,8 @@
     text-wrap: balance;
   }
   ::selection {
-    background: #0a0a0a;
-    color: #ffffff;
+    background: var(--ink);
+    color: var(--paper);
   }
   :focus-visible {
     outline-color: var(--ring);
@@ -144,6 +166,17 @@
   line-height: var(--text-meta--line-height);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/*
+ * Line glyphs (<Glyph>) keep one stroke weight at every size; set
+ * --glyph-stroke on the icon or a parent to change it.
+ */
+@layer components {
+  .glyph path {
+    vector-effect: non-scaling-stroke;
+    stroke-width: var(--glyph-stroke, 1.5px);
+  }
 }
 
 /* Long-form article text. */

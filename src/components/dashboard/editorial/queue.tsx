@@ -78,7 +78,7 @@ export function EditorialQueue() {
         <PageSkeleton />
       ) : rows.length === 0 ? (
         <div className="py-8">
-          <EmptyState title="Nothing here">{tab.empty}</EmptyState>
+          <EmptyState title="Nothing here" art={{ glyph: "systematic-review", tone: "lymph" }}>{tab.empty}</EmptyState>
         </div>
       ) : (
         <QueueTable rows={rows} closed={tab.key === "closed"} />

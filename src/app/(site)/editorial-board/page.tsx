@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { subjectArt } from "@/components/art/catalog";
+import { Glyph } from "@/components/art/glyph";
 import { DocPage, DocSection } from "@/components/site/doc-page";
 import { journal } from "@/config/journal";
 
@@ -32,7 +34,7 @@ export default function EditorialBoardPage() {
           <ul className="!list-none !space-y-0 divide-y border-y !pl-0">
             {group.roles.map((role) => (
               <li key={role} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5 !pl-0">
-                <span className="font-medium">{role}</span>
+                <RoleName role={role} />
                 <span className="meta-label text-muted-foreground">Appointment pending</span>
               </li>
             ))}
@@ -48,5 +50,16 @@ export default function EditorialBoardPage() {
         </p>
       </DocSection>
     </DocPage>
+  );
+}
+
+/** A role, with its specialty's glyph when it is a section editorship. */
+function RoleName({ role }: { role: string }) {
+  const glyph = subjectArt(role)?.glyph;
+  return (
+    <span className="inline-flex items-center gap-2 font-medium">
+      {glyph ? <Glyph name={glyph} className="size-5" /> : null}
+      {role}
+    </span>
   );
 }

@@ -72,7 +72,7 @@ export function ProductionOverview() {
             <PageSkeleton />
           ) : articles.results.length === 0 ? (
             <div className="mt-3">
-              <EmptyState title="No articles yet">Published articles will be listed here.</EmptyState>
+              <EmptyState title="No articles yet" art={{ glyph: "editorial", tone: "eosin" }}>Published articles will be listed here.</EmptyState>
             </div>
           ) : (
             <>

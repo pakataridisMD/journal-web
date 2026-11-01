@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import type { Art } from "@/components/art/catalog";
+import { Plate } from "@/components/art/plate";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({
@@ -64,15 +66,23 @@ export function Panel({
 
 export function EmptyState({
   title,
+  art,
   children,
   action,
 }: {
   title: string;
+  /** A small plate above the title, chosen to suit the page. */
+  art?: Art;
   children?: ReactNode;
   action?: ReactNode;
 }) {
   return (
     <div className="border border-dashed px-6 py-12 text-center">
+      {art ? (
+        <div className="mx-auto mb-5 w-32">
+          <Plate glyph={art.glyph} tone={art.tone} width={128} height={96} scale={0.68} stroke={2.4} />
+        </div>
+      ) : null}
       <p className="font-serif text-title">{title}</p>
       {children ? <div className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{children}</div> : null}
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}

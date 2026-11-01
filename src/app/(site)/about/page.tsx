@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Scene } from "@/components/art/scene";
 import { DocPage, DocSection } from "@/components/site/doc-page";
 import { journal } from "@/config/journal";
 
@@ -25,6 +26,7 @@ export default function AboutPage() {
       title={`About ${journal.name}`}
       lede={journal.description}
       sections={SECTIONS}
+      art={<Scene name="helix" />}
     >
       <DocSection id="aims" title="Aims and scope">
         <p>

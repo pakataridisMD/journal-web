@@ -107,9 +107,17 @@ The app uses its own `/sign-in` and `/sign-up` pages and sends people to the das
 
 The site runs well on [Vercel](https://vercel.com) with a production Convex deployment.
 
-1. In Clerk, create a production instance for your domain and copy its keys.
-2. In the Convex dashboard, open the production deployment and set `CLERK_JWT_ISSUER_DOMAIN` (the production Frontend API URL, usually `https://clerk.your-domain`) and `JOURNAL_ADMIN_EMAILS`. Generate a production deploy key.
-3. Import the repository in Vercel. Set the build command to `npx convex deploy --cmd 'npm run build'`, and add `CONVEX_DEPLOY_KEY`, the two Clerk keys and `NEXT_PUBLIC_SITE_URL`.
+1. In Clerk, create a production instance for your domain and copy its keys. No domain yet? Clerk's production keys don't work on a `vercel.app` address, so use the development instance's keys until you have one.
+2. In the Convex dashboard, open the production deployment and set `CLERK_JWT_ISSUER_DOMAIN` (the Clerk Frontend API URL; for a production instance usually `https://clerk.your-domain`) and `JOURNAL_ADMIN_EMAILS`. Generate a production deploy key.
+3. Import the repository in Vercel. Set the build command to:
+
+   ```bash
+   npx convex deploy && npx convex deploy --cmd 'npm run build'
+   ```
+
+   The first `convex deploy` uploads the Convex functions. The second builds the site with `NEXT_PUBLIC_CONVEX_URL` set, then uploads again. Both are needed: `--cmd` runs the build before uploading, and the public pages query Convex while they prerender. So on a new deployment, a single `npx convex deploy --cmd 'npm run build'` fails with `Server Error`, then `Failed to collect page data`.
+
+4. Add `CONVEX_DEPLOY_KEY` (Production only) and the two Clerk keys as environment variables. `NEXT_PUBLIC_SITE_URL` is optional; without it the site uses the Vercel production domain.
 
 Don't run the seed on production; the journal should start empty.
 

@@ -3,15 +3,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { articleArt, subjectArt } from "@/components/art/catalog";
+import { Glyph } from "@/components/art/glyph";
+import { Plate } from "@/components/art/plate";
 import { CopyButton } from "@/components/site/cite-button";
 import { Markdown } from "@/components/site/markdown";
 import { ReviewTrail } from "@/components/site/review-trail";
 import { StructuredAbstract } from "@/components/site/structured-abstract";
+import { TypeLabel } from "@/components/site/type-label";
 import { PdfLink, ViewTracker } from "@/components/site/view-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { journal } from "@/config/journal";
 import { getArticle, getRecentSlugs, type PublicArticle } from "@/lib/data";
-import { citation, formatDate, isoDate, issueLabel, typeLabel } from "@/lib/format";
+import { citation, formatDate, isoDate, issueLabel } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
 
 const PLACEHOLDER = "__placeholder__";
@@ -88,6 +92,7 @@ async function ArticleContent({ params }: { params: PageProps<"/articles/[slug]"
   const affiliations = Array.from(new Set(article.authors.map((a) => a.affiliation)));
   const corresponding = article.authors.find((a) => a.isCorresponding && a.email);
   const cite = citation(article);
+  const art = articleArt(article);
 
   return (
     <article className="page-container pb-20">
@@ -99,8 +104,8 @@ async function ArticleContent({ params }: { params: PageProps<"/articles/[slug]"
 
       <header className="grid gap-y-6 border-b py-10 md:py-14 lg:grid-cols-12 lg:gap-x-12">
         <div className="lg:col-span-9">
-          <p className="meta-label flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground">
-            <span className="text-foreground">{typeLabel(article.articleType)}</span>
+          <p className="meta-label flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground">
+            <TypeLabel type={article.articleType} />
             {article.issue ? (
               <Link
                 href={`/issues/${article.issue.volume}/${article.issue.number}`}
@@ -113,7 +118,7 @@ async function ArticleContent({ params }: { params: PageProps<"/articles/[slug]"
             )}
             <span className="normal-case">{article.articleNumber}</span>
           </p>
-          <h1 className="mt-5 font-serif text-[2rem] leading-[1.08] tracking-[-0.025em] md:text-display lg:text-[2.875rem]">
+          <h1 className="mt-5 font-serif text-[2rem] leading-[1.08] font-[320] tracking-[-0.025em] md:text-display lg:text-[2.875rem]">
             {article.title}
           </h1>
           <AuthorLine authors={article.authors} affiliations={affiliations} />
@@ -125,6 +130,9 @@ async function ArticleContent({ params }: { params: PageProps<"/articles/[slug]"
               </li>
             ))}
           </ol>
+        </div>
+        <div className="hidden lg:col-span-3 lg:block">
+          <Plate glyph={art.glyph} tone={art.tone} width={240} height={200} scale={0.6} />
         </div>
       </header>
 
@@ -210,11 +218,15 @@ async function ArticleContent({ params }: { params: PageProps<"/articles/[slug]"
                   Subjects
                 </h2>
                 <ul className="mt-3 flex flex-wrap gap-2">
-                  {article.subjects.map((subject) => (
-                    <li key={subject} className="border px-2.5 py-1 text-sm">
-                      {subject}
-                    </li>
-                  ))}
+                  {article.subjects.map((subject) => {
+                    const subjectGlyph = subjectArt(subject)?.glyph;
+                    return (
+                      <li key={subject} className="inline-flex items-center gap-1.5 border px-2.5 py-1 text-sm">
+                        {subjectGlyph ? <Glyph name={subjectGlyph} className="-ml-0.5 size-4" /> : null}
+                        {subject}
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             ) : null}

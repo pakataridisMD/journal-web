@@ -1,3 +1,6 @@
+import { issueArt } from "@/components/art/catalog";
+import { seedFrom } from "@/components/art/cut";
+import { Plate } from "@/components/art/plate";
 import { journal, tocOrder } from "@/config/journal";
 import type { ArticleCard } from "@/lib/data";
 import { formatMonthYear } from "@/lib/format";
@@ -11,8 +14,9 @@ type CoverIssue = {
 };
 
 /**
- * Issue covers are typeset, not illustrated: wordmark, volume and number set
- * large, and the lead titles listed like a printed journal's front cover.
+ * An issue's cover, like a printed journal's: wordmark and date, a plate
+ * that changes colour and subject from issue to issue, the volume and number
+ * set large, and the lead titles as cover lines.
  */
 export function IssueCover({
   issue,
@@ -27,12 +31,13 @@ export function IssueCover({
 }) {
   const lead = [...articles]
     .sort((a, b) => tocOrder.indexOf(a.articleType) - tocOrder.indexOf(b.articleType))
-    .slice(0, size === "sm" ? 0 : 3);
+    .slice(0, size === "sm" ? 0 : 2);
+  const art = issueArt(issue);
   return (
     <div
       className={cn(
         "relative flex aspect-[3/4] w-full flex-col overflow-hidden rounded-card bg-muted text-foreground",
-        size === "sm" ? "p-4" : "p-6",
+        size === "sm" ? "p-3.5" : "p-5",
         className,
       )}
       aria-hidden
@@ -44,28 +49,41 @@ export function IssueCover({
             {journal.name}
           </span>
         </div>
-        {issue.publishedAt ? (
+        {/* Small covers sit above their own caption, which carries the date. */}
+        {issue.publishedAt && size !== "sm" ? (
           <span className="meta-label text-right text-[0.6875rem] text-muted-foreground">
             {formatMonthYear(issue.publishedAt)}
           </span>
         ) : null}
       </div>
-      <div className={cn("mt-auto min-h-0", size === "sm" ? "pt-6" : "pt-6")}>
+      <div className={cn("relative min-h-0 flex-1", size === "sm" ? "-mx-1.5 my-1" : "-mx-2 my-2")}>
+        <Plate
+          glyph={art.glyph}
+          tone={art.tone}
+          width={240}
+          height={180}
+          scale={0.62}
+          inset={0.04}
+          seed={seedFrom(`issue:${issue.volume}.${issue.number}`)}
+          className="absolute inset-0 h-full"
+        />
+      </div>
+      <div>
         <p
           className={cn(
             "font-serif font-light leading-[0.85] tracking-[-0.04em]",
-            size === "sm" ? "text-[3.5rem]" : "text-[5.5rem]",
+            size === "sm" ? "text-[2.75rem]" : "text-[4rem]",
           )}
         >
           {issue.volume}
           <span className="text-muted-foreground">.</span>
           {issue.number}
         </p>
-        <p className="meta-label mt-3 text-[0.6875rem] text-muted-foreground">
+        <p className="meta-label mt-2.5 text-[0.6875rem] text-muted-foreground">
           Volume {issue.volume} · Issue {issue.number}
         </p>
         {lead.length > 0 ? (
-          <ul className="mt-4 space-y-2 border-t border-foreground/80 pt-3.5">
+          <ul className="mt-3 space-y-1.5 border-t border-foreground/80 pt-3">
             {lead.map((a) => (
               <li key={a.title} className="line-clamp-2 font-serif text-[0.8125rem] leading-snug">
                 {a.title}

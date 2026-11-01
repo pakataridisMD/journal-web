@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Scene } from "@/components/art/scene";
 import { DocPage, DocSection } from "@/components/site/doc-page";
 import { Button } from "@/components/ui/button";
 import { articleTypes, fileKinds, journal, submissionRules, type ArticleTypeKey } from "@/config/journal";
@@ -39,6 +40,7 @@ export default function ForAuthorsPage() {
       title="Guide for authors"
       lede="Everything you need to prepare a submission. If anything here is unclear, write to the editorial office before you submit."
       sections={SECTIONS}
+      art={<Scene name="manuscript" />}
       aside={
         <Button asChild variant="brand" className="w-full">
           <Link href="/dashboard/submissions/new">Submit a manuscript</Link>

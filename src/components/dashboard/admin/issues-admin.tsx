@@ -66,7 +66,7 @@ export function IssuesAdmin() {
       />
       {issues.length === 0 ? (
         <div className="py-8">
-          <EmptyState title="No issues yet">
+          <EmptyState title="No issues yet" art={{ glyph: "review", tone: "bone" }}>
             Create Volume 1, Issue 1, add articles to it from Production, then publish it.
           </EmptyState>
         </div>

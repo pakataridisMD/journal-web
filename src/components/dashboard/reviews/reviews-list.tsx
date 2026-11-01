@@ -26,7 +26,7 @@ export function ReviewsList() {
       />
       {rows.length === 0 ? (
         <div className="py-8">
-          <EmptyState title="No invitations yet">
+          <EmptyState title="No invitations yet" art={{ glyph: "letter", tone: "nerve" }}>
             When an editor invites you to review a manuscript, the invitation appears here.
           </EmptyState>
         </div>

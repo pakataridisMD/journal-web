@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TYPE_ART } from "@/components/art/catalog";
+import { Glyph } from "@/components/art/glyph";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { articleTypes, type ArticleTypeKey } from "@/config/journal";
@@ -70,8 +72,14 @@ export function NewSubmission() {
                   )}
                 >
                   <RadioGroupItem id={`type-${key}`} value={key} className="mt-1" />
-                  <span className="min-w-0">
-                    <span className="block font-serif text-xl leading-tight">{config.label}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-start justify-between gap-3">
+                      <span className="block font-serif text-xl leading-tight">{config.label}</span>
+                      <Glyph
+                        name={TYPE_ART[key].glyph}
+                        className={cn("size-7 [--glyph-stroke:1.6px]", type !== key && "text-muted-foreground")}
+                      />
+                    </span>
                     <span className="mt-1.5 block text-sm leading-snug text-muted-foreground">
                       {config.description}
                     </span>

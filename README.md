@@ -130,7 +130,7 @@ npm run check       # typecheck, lint and tests
 npm run build       # production build (needs NEXT_PUBLIC_CONVEX_URL)
 ```
 
-Tests use [convex-test](https://docs.convex.dev/testing/convex-test) and cover permissions and the editorial workflow end to end (`convex/*.test.ts`).
+Tests use [convex-test](https://docs.convex.dev/testing/convex-test) and cover permissions and the editorial workflow end to end (`convex/*.test.ts`). The illustration data has its own checks (`src/components/art/art.test.ts`).
 
 | Path | Contains |
 | --- | --- |
@@ -138,6 +138,7 @@ Tests use [convex-test](https://docs.convex.dev/testing/convex-test) and cover p
 | `src/app/dashboard` | Signed-in pages, rendered in the browser |
 | `src/components/site`, `src/components/dashboard` | Page components |
 | `src/components/ui` | shadcn/ui components, restyled for the journal |
+| `src/components/art` | The journal's glyphs, plates and illustrations, drawn as SVG path data (see `/style-guide`) |
 | `src/config/journal.ts` | Journal name, article types, subjects, file rules |
 | `src/lib/data.ts` | Cached reads for the public pages |
 | `convex/` | Schema, queries and mutations, permission checks, tests |

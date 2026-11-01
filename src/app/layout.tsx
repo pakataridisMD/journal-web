@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { IBM_Plex_Mono, Newsreader, Schibsted_Grotesk } from "next/font/google";
+import { ArtDefs } from "@/components/art/art-defs";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { journal } from "@/config/journal";
@@ -15,10 +16,10 @@ const newsreader = Newsreader({
   display: "swap",
 });
 
-const plexSans = IBM_Plex_Sans({
+/** Interface sans: a newspaper grotesque, sturdy at small sizes. */
+const schibsted = Schibsted_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex-sans",
+  variable: "--font-schibsted",
   display: "swap",
 });
 
@@ -38,25 +39,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#f8f6f1",
   colorScheme: "light",
 };
 
-/** Clerk's components wear the journal's tokens (square, black, no shadow). */
+/** Clerk's components wear the journal's tokens (square, ink, no shadow). */
 const clerkAppearance = {
   variables: {
-    colorPrimary: "#0a0a0a",
-    colorPrimaryForeground: "#ffffff",
-    colorForeground: "#0a0a0a",
-    colorMutedForeground: "#6e6e6e",
-    colorBackground: "#ffffff",
-    colorInput: "#ffffff",
-    colorBorder: "#8c8c8c",
-    colorRing: "#0a0a0a",
+    colorPrimary: "#161512",
+    colorPrimaryForeground: "#fffefb",
+    colorForeground: "#161512",
+    colorMutedForeground: "#67625a",
+    colorBackground: "#fffefb",
+    colorInput: "#fffefb",
+    colorBorder: "#8f887c",
+    colorRing: "#161512",
     colorDanger: "#b42318",
     colorShadow: "transparent",
     borderRadius: "0px",
-    fontFamily: "var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif",
+    fontFamily: "var(--font-schibsted), ui-sans-serif, system-ui, sans-serif",
   },
 };
 
@@ -71,9 +72,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <html
         lang="en"
-        className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}
+        className={`${newsreader.variable} ${schibsted.variable} ${plexMono.variable}`}
       >
         <body className="flex min-h-dvh flex-col">
+          <ArtDefs />
           <ConvexClientProvider>{children}</ConvexClientProvider>
           <Toaster position="bottom-right" />
         </body>

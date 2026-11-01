@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Create an account", robots: { index:
 
 export default function SignUpPage() {
   return (
-    <AuthShell title="Create an account">
+    <AuthShell title="Create an account" scene="breath">
       <SignUp />
     </AuthShell>
   );

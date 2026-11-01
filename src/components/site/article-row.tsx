@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ArticleCard } from "@/lib/data";
-import { authorList, formatShortDate, shortIssueLabel, typeLabel } from "@/lib/format";
+import { authorList, formatShortDate, shortIssueLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { TypeLabel } from "./type-label";
 
 /** One article in a list: metadata line, serif title, authors, snippet. */
 export function ArticleRow({
@@ -18,8 +19,8 @@ export function ArticleRow({
   const Heading = headingLevel;
   return (
     <article className={cn("group relative py-6", className)}>
-      <p className="meta-label flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground">
-        <span className="text-foreground">{typeLabel(article.articleType)}</span>
+      <p className="meta-label flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground">
+        <TypeLabel type={article.articleType} />
         <time dateTime={new Date(article.publishedAt).toISOString()}>
           {formatShortDate(article.publishedAt)}
         </time>

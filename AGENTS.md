@@ -14,4 +14,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Permissions are enforced in the Convex functions (`convex/lib/auth.ts`, `convex/lib/manuscripts.ts` and each query and mutation). Hiding something in the UI is never the check.
 - `src/config/journal.ts` is imported by both Next.js and Convex, so keep it pure data.
 - Dashboard pages render in the browser after sign-in and export `instant = false`; public pages are server-rendered with `'use cache'` and refreshed by `refreshPublicContent` in `src/app/actions.ts`.
+- `next build` prerenders the public pages by querying Convex, so the Convex functions must be deployed before the site builds. Keep the Vercel build command as `npx convex deploy && npx convex deploy --cmd 'npm run build'` (README → Deploy), and keep build-time queries working on an empty database.
 - Design rules: white canvas, black ink, hairline borders, no shadows, square controls, 8px `rounded-card` panels. The vermillion `brand` button variant is only for the one primary action on a page (and the active nav marker). Newsreader for titles and reading text, IBM Plex Sans for UI, Plex Mono `meta-label` for labels.

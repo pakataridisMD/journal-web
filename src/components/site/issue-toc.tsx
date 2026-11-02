@@ -26,8 +26,8 @@ export function IssueToc({
               <li key={article._id} className="py-4">
                 <Link href={`/articles/${article.slug}`} className="group block">
                   <span className="flex items-baseline gap-3">
-                    <span className="font-serif text-lg leading-snug group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4 md:text-[1.1875rem]">
-                      {article.title}
+                    <span className="font-serif text-lg leading-snug md:text-[1.1875rem]">
+                      <span className="ink-link">{article.title}</span>
                     </span>
                     <span
                       aria-hidden

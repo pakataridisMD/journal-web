@@ -1,3 +1,4 @@
+import { inkPath, motion } from "@/components/motion/motion";
 import { cn } from "@/lib/utils";
 import { GRAIN_FILTER, ROUGH_FILTER } from "./art-defs";
 import { cutPaperField, seedFrom } from "./cut";
@@ -16,7 +17,9 @@ export function toneColor(tone: Tone): string {
  * glyph's paper silhouette printed slightly off-register, and the ink line
  * drawing on top. `width` × `height` is the design size in px; the plate
  * scales to fill its box, so pick a design size near the rendered size to
- * keep the line weight (`stroke`, default 3) close to its design.
+ * keep the line weight (`stroke`, default 3) close to its design. With
+ * `draw`, the plate is printed as it comes into view: it is laid down, then
+ * its ink lines draw themselves one after another (see motion.ts).
  */
 export function Plate({
   glyph,
@@ -28,6 +31,8 @@ export function Plate({
   stroke = 3,
   seed,
   label,
+  draw = false,
+  delay,
   className,
 }: {
   glyph: GlyphName;
@@ -42,6 +47,10 @@ export function Plate({
   /** Changes how the field is cut; defaults to one derived from the glyph and tone. */
   seed?: number;
   label?: string;
+  /** Draw the plate in as it arrives, for the public site. */
+  draw?: boolean;
+  /** With `draw`, wait this many ms first, to stagger plates shown together. */
+  delay?: number;
   className?: string;
 }) {
   const spec = GLYPHS[glyph];
@@ -60,6 +69,7 @@ export function Plate({
       focusable="false"
       className={cn("block h-auto w-full", className)}
       {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
+      {...(draw ? motion("draw", delay) : {})}
     >
       <path d={field} style={{ fill: toneColor(tone) }} filter={GRAIN_FILTER} />
       {paper.length > 0 ? (
@@ -71,6 +81,7 @@ export function Plate({
       ) : null}
       <g filter={ROUGH_FILTER}>
         <g
+          data-art="ink"
           transform={`translate(${x} ${y}) scale(${unit})${turn}`}
           fill="none"
           strokeWidth={stroke / unit}
@@ -79,7 +90,7 @@ export function Plate({
           style={{ stroke: "var(--ink)" }}
         >
           {spec.ink.map((d, i) => (
-            <path key={i} d={d} />
+            <path key={i} d={d} {...(draw ? inkPath(i, spec.ink.length) : {})} />
           ))}
         </g>
       </g>

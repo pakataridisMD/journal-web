@@ -16,17 +16,23 @@ type CoverIssue = {
 /**
  * An issue's cover, like a printed journal's: wordmark and date, a plate
  * that changes colour and subject from issue to issue, the volume and number
- * set large, and the lead titles as cover lines.
+ * set large, and the lead titles as cover lines. With `draw`, the plate is
+ * printed as the cover comes into view.
  */
 export function IssueCover({
   issue,
   articles = [],
   size = "md",
+  draw = false,
+  delay,
   className,
 }: {
   issue: CoverIssue;
   articles?: readonly Pick<ArticleCard, "title" | "articleType">[];
   size?: "sm" | "md";
+  draw?: boolean;
+  /** With `draw`, wait this many ms first, to stagger covers shown together. */
+  delay?: number;
   className?: string;
 }) {
   const lead = [...articles]
@@ -65,6 +71,8 @@ export function IssueCover({
           scale={0.62}
           inset={0.04}
           seed={seedFrom(`issue:${issue.volume}.${issue.number}`)}
+          draw={draw}
+          delay={delay}
           className="absolute inset-0 h-full"
         />
       </div>

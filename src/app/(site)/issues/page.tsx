@@ -44,16 +44,14 @@ export default async function IssuesPage() {
       {issues.length === 0 ? (
         <div className="py-14 text-center">
           <div className="mx-auto w-full max-w-xs">
-            <Scene name="breath" />
+            <Scene name="breath" draw />
           </div>
           <p className="mt-6 text-muted-foreground">The first issue is in preparation.</p>
         </div>
       ) : (
         volumes.map((volume) => (
           <section key={volume} aria-labelledby={`volume-${volume}`} className="pt-10">
-            <h2 id={`volume-${volume}`} className="meta-label border-b border-foreground pb-2.5">
-              Volume {volume}
-            </h2>
+            <SectionHeading id={`volume-${volume}`}>Volume {volume}</SectionHeading>
             <ul className="grid grid-cols-2 gap-x-6 gap-y-10 pt-8 sm:grid-cols-3 lg:grid-cols-5">
               {issues
                 .filter((i) => i.volume === volume)
@@ -63,9 +61,9 @@ export default async function IssuesPage() {
                       href={`/issues/${issue.volume}/${issue.number}`}
                       className="group block"
                     >
-                      <IssueCover issue={issue} size="sm" className="transition-opacity group-hover:opacity-90" />
-                      <p className="mt-3 font-medium group-hover:underline group-hover:underline-offset-4">
-                        {issueLabel(issue)}
+                      <IssueCover issue={issue} size="sm" draw className="transition-opacity group-hover:opacity-90" />
+                      <p className="mt-3 font-medium">
+                        <span className="ink-link">{issueLabel(issue)}</span>
                       </p>
                       <p className="mt-0.5 text-sm text-muted-foreground">
                         {issue.publishedAt ? formatMonthYear(issue.publishedAt) : null}

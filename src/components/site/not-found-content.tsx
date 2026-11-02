@@ -22,7 +22,7 @@ export function NotFoundContent() {
         </div>
       </div>
       <div className="mx-auto w-full max-w-[30rem] lg:col-span-5 lg:col-start-8">
-        <Scene name="emptySlide" />
+        <Scene name="emptySlide" draw />
       </div>
     </div>
   );

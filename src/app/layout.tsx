@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Newsreader, Schibsted_Grotesk } from "next/font/google";
 import { ArtDefs } from "@/components/art/art-defs";
+import { MotionObserver } from "@/components/motion/motion-observer";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { journal } from "@/config/journal";
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ArtDefs />
           <ConvexClientProvider>{children}</ConvexClientProvider>
           <Toaster position="bottom-right" />
+          <MotionObserver />
         </body>
       </html>
     </ClerkProvider>

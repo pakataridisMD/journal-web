@@ -139,6 +139,7 @@ Tests use [convex-test](https://docs.convex.dev/testing/convex-test) and cover p
 | `src/components/site`, `src/components/dashboard` | Page components |
 | `src/components/ui` | shadcn/ui components, restyled for the journal |
 | `src/components/art` | The journal's glyphs, plates and illustrations, drawn as SVG path data (see `/style-guide`) |
+| `src/assets/images` | Cover images: public-domain works from The Met, credited in `src/components/site/cover-images.ts` |
 | `src/config/journal.ts` | Journal name, article types, subjects, file rules |
 | `src/lib/data.ts` | Cached reads for the public pages |
 | `convex/` | Schema, queries and mutations, permission checks, tests |

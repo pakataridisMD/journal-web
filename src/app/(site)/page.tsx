@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { articleArt, SUBJECT_ART, type Subject } from "@/components/art/catalog";
+import type { ReactNode } from "react";
+import { SUBJECT_ART, type Subject } from "@/components/art/catalog";
 import { Plate } from "@/components/art/plate";
 import { Scene } from "@/components/art/scene";
 import { ArticleList } from "@/components/site/article-row";
+import { CoverCredit, CoverImage, CREDIT_LABEL } from "@/components/site/cover-image";
+import type { CoverName } from "@/components/site/cover-images";
 import { IssueCover } from "@/components/site/issue-cover";
 import { IssueToc } from "@/components/site/issue-toc";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -48,20 +51,26 @@ export default async function HomePage() {
       </div>
 
       {lead ? (
-        <section aria-label="Featured research" className="page-container">
-          <div className="border-b py-10 md:py-14">
+        <section aria-label="Featured research">
+          <Hero>
             <LeadArticle article={lead} />
-            {secondary.length > 0 ? (
-              <div className="mt-10 grid divide-y border-t md:mt-14 md:grid-cols-2 md:divide-x md:divide-y-0">
+          </Hero>
+          {secondary.length > 0 ? (
+            <div className="border-b">
+              <div className="page-container grid divide-y md:grid-cols-2 md:divide-x md:divide-y-0">
                 {secondary.map((article) => (
                   <SecondaryArticle key={article._id} article={article} />
                 ))}
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </section>
       ) : (
-        <EmptyJournal />
+        <section aria-label="Welcome">
+          <Hero>
+            <EmptyJournal />
+          </Hero>
+        </section>
       )}
 
       {rest.length > 0 || issue ? (
@@ -103,51 +112,64 @@ export default async function HomePage() {
   );
 }
 
-/** The cover story: text on the left, its subject's plate on the right. */
-function LeadArticle({ article }: { article: ArticleCard }) {
-  const art = articleArt(article);
+/**
+ * The top of the home page, like a journal's cover: the cover image bleeds
+ * off the right edge (on top on small screens) beside the cover story or,
+ * before the first articles, a welcome.
+ */
+function Hero({ children }: { children: ReactNode }) {
   return (
-    <article className="group relative grid gap-y-8 lg:grid-cols-12 lg:gap-x-12">
-      <div className="lg:col-span-7">
-        <p className="meta-label flex flex-wrap items-center gap-x-3 text-muted-foreground">
-          <TypeLabel type={article.articleType} />
-          <time dateTime={new Date(article.publishedAt).toISOString()}>
-            {formatShortDate(article.publishedAt)}
-          </time>
-        </p>
-        <h2 className="mt-4 font-serif text-[2rem] leading-[1.08] font-[320] tracking-[-0.025em] md:text-display lg:text-[2.75rem]">
-          <Link
-            href={`/articles/${article.slug}`}
-            className="decoration-2 underline-offset-[6px] after:absolute after:inset-0 group-hover:underline"
-          >
-            {article.title}
-          </Link>
-        </h2>
-        <p className="mt-4 text-sm text-muted-foreground">{authorList(article.authors, 4)}</p>
-        <p className="mt-5 max-w-2xl font-serif text-[1.1875rem] leading-relaxed text-pretty">
-          {article.snippet}
-        </p>
-        <p className="mt-6 text-sm font-medium">
-          Read the article <span aria-hidden>→</span>
-        </p>
+    <div className="relative border-b">
+      <CoverImage
+        name={HERO_COVER}
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        preload
+        className="aspect-[4/3] sm:aspect-[16/9] lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-1/2"
+      >
+        <CoverCredit name={HERO_COVER} className={CREDIT_LABEL} />
+      </CoverImage>
+      <div className="page-container">
+        <div className="flex flex-col justify-center py-10 md:py-14 lg:min-h-[38rem] lg:w-1/2 lg:pr-14">
+          {children}
+        </div>
       </div>
-      <div className="-order-1 lg:order-none lg:col-span-5">
-        <Plate
-          glyph={art.glyph}
-          tone={art.tone}
-          width={480}
-          height={360}
-          scale={0.62}
-          className="transition-transform duration-500 ease-out group-hover:-rotate-1 motion-reduce:transition-none"
-        />
-      </div>
+    </div>
+  );
+}
+
+const HERO_COVER = "spiraea" satisfies CoverName;
+
+function LeadArticle({ article }: { article: ArticleCard }) {
+  return (
+    <article className="group relative">
+      <p className="meta-label flex flex-wrap items-center gap-x-3 text-muted-foreground">
+        <TypeLabel type={article.articleType} />
+        <time dateTime={new Date(article.publishedAt).toISOString()}>
+          {formatShortDate(article.publishedAt)}
+        </time>
+      </p>
+      <h2 className="mt-4 font-serif text-[2rem] leading-[1.08] font-[320] tracking-[-0.025em] md:text-display lg:text-[2.75rem]">
+        <Link
+          href={`/articles/${article.slug}`}
+          className="decoration-2 underline-offset-[6px] after:absolute after:inset-0 group-hover:underline"
+        >
+          {article.title}
+        </Link>
+      </h2>
+      <p className="mt-4 text-sm text-muted-foreground">{authorList(article.authors, 4)}</p>
+      <p className="mt-5 max-w-2xl font-serif text-[1.1875rem] leading-relaxed text-pretty">
+        {article.snippet}
+      </p>
+      <p className="mt-6 text-sm font-medium">
+        Read the article <span aria-hidden>→</span>
+      </p>
     </article>
   );
 }
 
 function SecondaryArticle({ article }: { article: ArticleCard }) {
   return (
-    <article className="group relative py-6 md:pt-8 md:pb-0 md:odd:pr-12 md:even:pl-12">
+    <article className="group relative py-6 md:py-8 md:odd:pr-12 md:even:pl-12">
       <p className="meta-label text-muted-foreground">
         <TypeLabel type={article.articleType} />
       </p>
@@ -169,22 +191,15 @@ function SecondaryArticle({ article }: { article: ArticleCard }) {
 
 function EmptyJournal() {
   return (
-    <section className="border-b">
-      <div className="page-container grid items-center gap-y-10 py-12 md:py-16 lg:grid-cols-12 lg:gap-x-12">
-        <div className="lg:col-span-6">
-          <p className="meta-label text-muted-foreground">Now accepting submissions</p>
-          <h2 className="mt-4 max-w-3xl font-serif text-headline md:text-display lg:text-[3.25rem] lg:leading-[1.04]">
-            The first articles are in review.
-          </h2>
-          <p className="mt-5 max-w-xl font-serif text-[1.1875rem] leading-relaxed text-pretty">
-            {journal.description}
-          </p>
-        </div>
-        <div className="mx-auto w-full max-w-[34rem] lg:col-span-6">
-          <Scene name="closeReading" />
-        </div>
-      </div>
-    </section>
+    <>
+      <p className="meta-label text-muted-foreground">Now accepting submissions</p>
+      <h2 className="mt-4 font-serif text-headline md:text-display lg:text-[3.25rem] lg:leading-[1.04]">
+        The first articles are in review.
+      </h2>
+      <p className="mt-5 max-w-xl font-serif text-[1.1875rem] leading-relaxed text-pretty">
+        {journal.description}
+      </p>
+    </>
   );
 }
 

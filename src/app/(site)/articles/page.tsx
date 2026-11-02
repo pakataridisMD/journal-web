@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Scene } from "@/components/art/scene";
 import { ArticleList } from "@/components/site/article-row";
 import { Button } from "@/components/ui/button";
 import { articleTypes, type ArticleTypeKey } from "@/config/journal";
@@ -120,11 +121,16 @@ async function Results({ searchParams }: { searchParams: PageProps<"/articles">[
     <>
       <Controls search={search} />
       {page.articles.length === 0 ? (
-        <p className="py-16 text-center text-muted-foreground">
-          {search.type
-            ? `No ${articleTypes[search.type].plural.toLowerCase()} have been published yet.`
-            : "No articles have been published yet."}
-        </p>
+        <div className="py-14 text-center">
+          <div className="mx-auto w-full max-w-xs">
+            <Scene name="closeReading" />
+          </div>
+          <p className="mt-6 text-muted-foreground">
+            {search.type
+              ? `No ${articleTypes[search.type].plural.toLowerCase()} have been published yet.`
+              : "No articles have been published yet."}
+          </p>
+        </div>
       ) : (
         <ArticleList articles={page.articles} headingLevel="h2" />
       )}

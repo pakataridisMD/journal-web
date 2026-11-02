@@ -6,6 +6,8 @@ import type { GlyphName } from "@/components/art/glyph-paths";
 import { Plate, toneColor, type PlateTone } from "@/components/art/plate";
 import { Scene } from "@/components/art/scene";
 import type { SceneName } from "@/components/art/scene-paths";
+import { CoverCredit, CoverImage } from "@/components/site/cover-image";
+import type { CoverName } from "@/components/site/cover-images";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Button } from "@/components/ui/button";
 import { articleTypes, subjects, type ArticleTypeKey } from "@/config/journal";
@@ -36,11 +38,17 @@ const TONES: { tone: PlateTone; name: string; value: string; stands: string }[] 
 ];
 
 const SCENES: { name: SceneName; title: string; where: string }[] = [
-  { name: "closeReading", title: "Close reading", where: "Home page while the journal is empty; sign-in" },
+  { name: "closeReading", title: "Close reading", where: "Article list, before anything is published" },
   { name: "manuscript", title: "Manuscript", where: "Home page for-authors band; guide for authors" },
   { name: "helix", title: "Helix", where: "About the journal" },
-  { name: "breath", title: "Breath", where: "Create an account" },
+  { name: "breath", title: "Breath", where: "Issue archive, before the first issue" },
   { name: "emptySlide", title: "Empty slide", where: "Page not found" },
+];
+
+const COVER_USES: { name: CoverName; where: string }[] = [
+  { name: "spiraea", where: "Home page cover" },
+  { name: "forearms", where: "Sign in" },
+  { name: "fern", where: "Create an account" },
 ];
 
 const TYPE_KEYS = Object.keys(articleTypes) as ArticleTypeKey[];
@@ -54,8 +62,9 @@ export default function StyleGuidePage() {
         <h1 className="mt-3 font-serif text-headline md:text-display">Style guide</h1>
         <p className="mt-5 max-w-2xl font-serif text-[1.1875rem] leading-relaxed text-pretty">
           A modern anatomical atlas: warm paper, black ink, and cut-paper plates in an atlas’s
-          colour code. Everything here is drawn for the journal and lives in the code, so it
-          stays sharp at any size.
+          colour code. The glyphs and illustrations are drawn for the journal and live in the
+          code, so they stay sharp at any size. The cover images are public-domain works from
+          The Met.
         </p>
       </header>
 
@@ -143,6 +152,23 @@ export default function StyleGuidePage() {
             <li key={t}>
               <Plate glyph={TYPE_ART[t].glyph} tone={TYPE_ART[t].tone} width={160} height={120} scale={0.6} stroke={2.6} />
               <p className="mt-2.5 text-sm">{articleTypes[t].label}</p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section id="covers" title="Cover images">
+        <p className="max-w-2xl text-muted-foreground">
+          Full-bleed images are historical science and natural history from The Met’s Open
+          Access collection: public domain, cropped to the artwork, and credited wherever they
+          appear.
+        </p>
+        <ul className="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {COVER_USES.map((c) => (
+            <li key={c.name}>
+              <CoverImage name={c.name} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" className="aspect-[3/4]" />
+              <p className="meta-label mt-4 text-foreground">{c.where}</p>
+              <CoverCredit name={c.name} className="mt-1.5 text-sm text-muted-foreground" />
             </li>
           ))}
         </ul>

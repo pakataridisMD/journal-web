@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Scene } from "@/components/art/scene";
 import { ArticleList } from "@/components/site/article-row";
 import { IssueCover } from "@/components/site/issue-cover";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -41,7 +42,12 @@ export default async function IssuesPage() {
       ) : null}
 
       {issues.length === 0 ? (
-        <p className="py-16 text-center text-muted-foreground">The first issue is in preparation.</p>
+        <div className="py-14 text-center">
+          <div className="mx-auto w-full max-w-xs">
+            <Scene name="breath" />
+          </div>
+          <p className="mt-6 text-muted-foreground">The first issue is in preparation.</p>
+        </div>
       ) : (
         volumes.map((volume) => (
           <section key={volume} aria-labelledby={`volume-${volume}`} className="pt-10">

@@ -8,7 +8,7 @@ import { OrcidIcon, OrcidId } from "@/components/site/orcid";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { errorMessage } from "@/lib/errors";
-import { ORCID_CALLBACK_PATH, ORCID_STATE_KEY } from "./orcid-panel";
+import { ORCID_CALLBACK_PATH, ORCID_STATE_KEY, refreshAfterOrcidChange } from "./orcid-panel";
 
 type Outcome =
   | { kind: "working" }
@@ -65,7 +65,10 @@ export function OrcidCallback() {
     window.history.replaceState(null, "", ORCID_CALLBACK_PATH);
     if (check || !code) return;
     connect({ code, redirectUri: `${window.location.origin}${ORCID_CALLBACK_PATH}` })
-      .then(({ orcid }) => setResult({ kind: "connected", orcid }))
+      .then(({ orcid }) => {
+        refreshAfterOrcidChange();
+        setResult({ kind: "connected", orcid });
+      })
       .catch((e) => setResult({ kind: "failed", message: errorMessage(e) }));
   }, [check, code, connect]);
 

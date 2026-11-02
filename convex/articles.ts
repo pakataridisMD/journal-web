@@ -4,7 +4,7 @@ import { journal, submissionRules } from "../src/config/journal";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import { articleCard, issueRef } from "./lib/articles";
-import { authorHandles, linkAuthors } from "./lib/authorships";
+import { authorLinks, linkAuthors } from "./lib/authorships";
 import { requireRole, requireViewer } from "./lib/auth";
 import { fail } from "./lib/errors";
 import {
@@ -102,11 +102,22 @@ export const getBySlug = query({
       .unique();
     if (!article || article.status !== "published") return null;
     const { searchText: _searchText, manuscriptId: _manuscriptId, pdfStorageId, authors, ...rest } = article;
-    const handles = await authorHandles(ctx, article._id);
+    const links = await authorLinks(ctx, article._id);
     return {
       ...rest,
-      /** `profile` is the author's profile address when their profile is on the website. */
-      authors: authors.map((author, i) => ({ ...author, profile: handles.get(i) ?? null })),
+      /**
+       * `profile` is the author's profile address when their profile is on the
+       * website. `orcidAuthenticated` says the author proved the iD shown by
+       * signing in to ORCID, rather than someone typing it in.
+       */
+      authors: authors.map((author, i) => {
+        const link = links.get(i);
+        return {
+          ...author,
+          profile: link?.handle ?? null,
+          orcidAuthenticated: Boolean(author.orcid && link?.orcid === author.orcid),
+        };
+      }),
       issue: await issueRef(ctx, article.issueId),
       pdfUrl: pdfStorageId ? await ctx.storage.getUrl(pdfStorageId) : null,
     };

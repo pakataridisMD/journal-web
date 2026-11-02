@@ -147,6 +147,8 @@ describe("submission", () => {
     const author = await signIn(t);
     const other = await signIn(t);
     const older = await submitted(t, author);
+    // Both can otherwise land in the same millisecond, which leaves the order undefined.
+    await new Promise((resolve) => setTimeout(resolve, 5));
     const newer = await author.as.mutation(api.manuscripts.createDraft, {
       articleType: "review",
     });

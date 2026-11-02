@@ -5,6 +5,7 @@ import type { FunctionReturnType } from "convex/server";
 import { RefreshCwIcon } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
+import { refreshPeople } from "@/app/actions";
 import { OrcidIcon, OrcidId } from "@/components/site/orcid";
 import {
   AlertDialog,
@@ -31,6 +32,11 @@ type Suggestions = NonNullable<Extract<NonNullable<MyProfile["orcid"]>, { authen
 /** Where ORCID sends people back to, and the session key that guards it. */
 export const ORCID_CALLBACK_PATH = "/dashboard/profile/orcid";
 export const ORCID_STATE_KEY = "journal:orcid-state";
+
+/** Public profiles and article pages show the iD and works; refresh them. */
+export function refreshAfterOrcidChange() {
+  refreshPeople().catch((error) => console.warn("The public pages will refresh within the hour.", error));
+}
 
 /** Send the person to ORCID to sign in and approve sharing their iD. */
 function startOrcidSignIn(config: { clientId: string; authorizeUrl: string }) {
@@ -102,6 +108,7 @@ export function OrcidPanel({
               setBusy("refresh");
               try {
                 await refresh({});
+                refreshAfterOrcidChange();
                 toast.success("Read your ORCID record again");
               } catch (error) {
                 toast.error(errorMessage(error));
@@ -135,6 +142,7 @@ export function OrcidPanel({
                     setBusy("disconnect");
                     try {
                       await disconnect({});
+                      refreshAfterOrcidChange();
                       toast.success("ORCID iD disconnected");
                     } catch (error) {
                       toast.error(errorMessage(error));

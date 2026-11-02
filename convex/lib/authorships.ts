@@ -1,7 +1,7 @@
 import type { Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import { findByEmail } from "./people";
-import { visibleHandle } from "./profiles";
+import { orcidLinkOf, visibleHandle } from "./profiles";
 
 /**
  * Record which journal members wrote an article, so their profiles can list
@@ -35,16 +35,19 @@ export async function linkAuthors(
   }
 }
 
-/** Profile addresses by byline position, for authors whose profiles are on the website. */
-export async function authorHandles(ctx: QueryCtx, articleId: Id<"articles">) {
+/**
+ * What the journal knows about each byline position that belongs to a member:
+ * their profile address when it's on the website, and the ORCID iD they proved.
+ */
+export async function authorLinks(ctx: QueryCtx, articleId: Id<"articles">) {
   const rows = await ctx.db
     .query("authorships")
     .withIndex("by_article", (q) => q.eq("articleId", articleId))
     .take(100);
-  const handles = new Map<number, string>();
+  const links = new Map<number, { handle: string | null; orcid: string | null }>();
   for (const row of rows) {
-    const handle = await visibleHandle(ctx, row.userId);
-    if (handle) handles.set(row.position, handle);
+    const [handle, link] = await Promise.all([visibleHandle(ctx, row.userId), orcidLinkOf(ctx, row.userId)]);
+    links.set(row.position, { handle, orcid: link?.orcid ?? null });
   }
-  return handles;
+  return links;
 }

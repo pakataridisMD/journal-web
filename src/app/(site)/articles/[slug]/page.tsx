@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { journal } from "@/config/journal";
 import { getArticle, getRecentSlugs, type PublicArticle } from "@/lib/data";
 import { citation, formatDate, isoDate, issueLabel } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { siteUrl } from "@/lib/site";
 
 const PLACEHOLDER = "__placeholder__";
@@ -268,10 +269,18 @@ function AuthorLine({
             />
           ) : null}
           {author.orcid ? (
+            // ORCID asks that only iDs proved by signing in carry the green
+            // icon; an iD typed in at submission is marked as unauthenticated.
             <a
               href={`https://orcid.org/${author.orcid}`}
-              className="ml-1 inline-flex size-4 -translate-y-px items-center justify-center rounded-full bg-[#A6CE39] align-middle font-mono text-[0.5rem] font-medium text-white"
-              aria-label={`ORCID iD for ${author.name}`}
+              className={cn(
+                "ml-1 inline-flex size-4 -translate-y-px items-center justify-center rounded-full align-middle font-mono text-[0.5rem] font-medium",
+                author.orcidAuthenticated
+                  ? "bg-[#A6CE39] text-white"
+                  : "border border-muted-foreground/60 text-muted-foreground",
+              )}
+              aria-label={`ORCID iD for ${author.name}${author.orcidAuthenticated ? "" : " (unauthenticated)"}`}
+              title={author.orcidAuthenticated ? undefined : "ORCID iD (unauthenticated)"}
               rel="noopener noreferrer"
               target="_blank"
             >

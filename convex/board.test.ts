@@ -106,6 +106,15 @@ describe("sample content", () => {
     expect(helena?.orcidRecord?.works.length).toBe(3);
     expect(helena?.metrics?.hIndex).toBe(14);
 
+    // Her byline iD is verified because she proved it; typed in alone, it isn't.
+    const slug = helena!.articles[0].slug;
+    const byline = async () => (await t.query(api.articles.getBySlug, { slug }))!.authors[0];
+    expect(await byline()).toMatchObject({ profile: "helena-marsh", orcidAuthenticated: true });
+    await t.run(async (ctx) => {
+      for (const link of await ctx.db.query("orcidLinks").collect()) await ctx.db.delete("orcidLinks", link._id);
+    });
+    expect(await byline()).toMatchObject({ orcid: "0000-0002-1825-0097", orcidAuthenticated: false });
+
     // Seeding twice adds nothing.
     await t.mutation(internal.seed.run, {});
     expect((await t.query(api.board.publicBoard, {})).positions).toHaveLength(board.positions.length);

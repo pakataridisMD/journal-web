@@ -303,7 +303,8 @@ export const listMine = query({
       .query("manuscripts")
       .withIndex("by_submitter", (q) => q.eq("submitterId", viewer._id))
       .take(200);
-    rows.sort((a, b) => b.updatedAt - a.updatedAt);
+    // Newest activity first; changes in the same millisecond put the newest manuscript first.
+    rows.sort((a, b) => b.updatedAt - a.updatedAt || b._creationTime - a._creationTime);
     return await Promise.all(
       rows.map(async (m) => {
         const article = m.articleId ? await ctx.db.get("articles", m.articleId) : null;

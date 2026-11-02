@@ -155,6 +155,19 @@ describe("submission", () => {
     expect(mine.map((m) => m._id)).toEqual([newer, older]);
   });
 
+  test("manuscripts last changed in the same millisecond list the newest first", async () => {
+    const t = setup();
+    const author = await signIn(t);
+    const older = await author.as.mutation(api.manuscripts.createDraft, { articleType: "review" });
+    const newer = await author.as.mutation(api.manuscripts.createDraft, { articleType: "review" });
+    // Two quick changes can share a timestamp.
+    await t.run(async (ctx) => {
+      for (const id of [older, newer]) await ctx.db.patch("manuscripts", id, { updatedAt: 1_000 });
+    });
+    const mine = await author.as.query(api.manuscripts.listMine, {});
+    expect(mine.map((m) => m._id)).toEqual([newer, older]);
+  });
+
   test("the submitter can withdraw before a decision", async () => {
     const t = setup();
     const author = await signIn(t);

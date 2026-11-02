@@ -31,6 +31,7 @@ export function navGroups(viewer: Viewer): Group[] {
           ? [
               { href: "/dashboard/issues", label: "Issues" },
               { href: "/dashboard/people", label: "People and roles" },
+              { href: "/dashboard/board", label: "Editorial board" },
             ]
           : []),
       ],

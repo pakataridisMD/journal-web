@@ -1,9 +1,18 @@
 import { journal } from "../src/config/journal";
 import type { Id } from "./_generated/dataModel";
-import { internalMutation } from "./_generated/server";
+import { internalMutation, type MutationCtx } from "./_generated/server";
 import { DAY } from "./lib/manuscripts";
-import { articleSearchText, slugify } from "./lib/text";
-import type { AbstractSection, ArticleAuthor, ArticleType } from "./lib/validators";
+import { rolesFields } from "./lib/people";
+import { articleSearchText, slugify, userSearchText } from "./lib/text";
+import type {
+  AbstractSection,
+  ArticleAuthor,
+  ArticleType,
+  BoardGroup,
+  OrcidRecord,
+  ProfileLink,
+  Role,
+} from "./lib/validators";
 
 /**
  * Sample content for previewing the site locally:
@@ -305,6 +314,218 @@ export const run = internalMutation({
       .unique();
     if (counter) await ctx.db.patch("counters", counter._id, { value: sequence });
     else await ctx.db.insert("counters", { name, value: sequence });
-    return `Seeded ${sequence} sample articles.`;
+    const people = await seedPeople(ctx);
+    return `Seeded ${sequence} sample articles and ${people} sample people.`;
   },
 });
+
+// ---------------------------------------------------------------- people
+
+/**
+ * Adds only the sample board, reviewers and profiles, for a development
+ * deployment seeded before they existed: `npx convex run seed:people`.
+ */
+export const people = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const count = await seedPeople(ctx);
+    return count ? `Seeded ${count} sample people.` : "Skipped: the editorial board already has positions.";
+  },
+});
+
+const SAMPLE_BIO = "Sample profile for previewing the site; this person doesn't exist.";
+
+type SamplePerson = {
+  name: string;
+  credentials?: string;
+  affiliation: string;
+  roles?: Role[];
+  board?: { group: BoardGroup; title: string; subject?: string };
+  isPublic?: boolean;
+  listAsReviewer?: boolean;
+  bio?: string;
+  expertise?: string[];
+  keywords?: string[];
+  links?: ProfileLink[];
+  /** Connect ORCID's own test record (Josiah Carberry's iD) with sample works. */
+  orcid?: boolean;
+};
+
+/** Board positions in page order; a position without a person stays open. */
+const SAMPLE_BOARD: { group: BoardGroup; title: string; subject?: string; person?: string }[] = [
+  { group: "chief", title: "Editor-in-chief", person: "Ingrid Solberg" },
+  { group: "deputy", title: "Deputy editor, clinical research", person: "Aiko Nakamura" },
+  { group: "deputy", title: "Deputy editor, reviews and education" },
+  { group: "section", title: "Section editor, cardiology", subject: "Cardiology" },
+  { group: "section", title: "Section editor, emergency medicine", subject: "Emergency medicine", person: "Rafael Quintero" },
+  { group: "section", title: "Section editor, general practice", subject: "General practice", person: "Benjamin Clarke" },
+  { group: "section", title: "Section editor, infectious diseases", subject: "Infectious diseases" },
+  { group: "section", title: "Section editor, pediatrics", subject: "Pediatrics" },
+  { group: "methods", title: "Statistical editor", person: "Mei Lin" },
+  { group: "methods", title: "Research integrity editor" },
+  { group: "office", title: "Managing editor", person: "Nadia Petrova" },
+];
+
+const SAMPLE_PEOPLE: SamplePerson[] = [
+  {
+    name: "Ingrid Solberg",
+    credentials: "MD, PhD",
+    affiliation: "Institute of General Practice, Fjordland University",
+    roles: ["editor", "reviewer"],
+    bio: `${SAMPLE_BIO}\n\nA general practitioner for twenty years, she studies how older people with many long-term conditions can safely take fewer medicines.`,
+    expertise: ["General practice", "Geriatrics"],
+    keywords: ["deprescribing", "polypharmacy", "multimorbidity"],
+    links: [
+      { kind: "google_scholar", url: "https://scholar.google.com/citations?user=SampleIngrd" },
+      { kind: "linkedin", url: "https://www.linkedin.com/in/sample-ingrid-solberg" },
+    ],
+  },
+  {
+    name: "Aiko Nakamura",
+    credentials: "MD, MPH",
+    affiliation: "Clinical Trials Unit, Harbor University",
+    roles: ["editor"],
+    bio: `${SAMPLE_BIO}\n\nShe designs pragmatic trials in hospital medicine and teaches trial methods to clinicians.`,
+    expertise: ["Internal medicine", "Public health"],
+    keywords: ["pragmatic trials", "trial methodology"],
+  },
+  {
+    name: "Rafael Quintero",
+    credentials: "MD",
+    affiliation: "Emergency Department, Harbor University Hospital",
+    roles: ["editor"],
+    expertise: ["Emergency medicine"],
+  },
+  {
+    name: "Benjamin Clarke",
+    credentials: "MBBS, MRCGP",
+    affiliation: "Riverside Family Practice",
+    roles: ["editor"],
+    expertise: ["General practice"],
+  },
+  { name: "Mei Lin", credentials: "PhD", affiliation: "Department of Public Health, Harbor University", roles: ["editor"], expertise: ["Public health"] },
+  { name: "Nadia Petrova", affiliation: journal.publisher },
+  {
+    name: "Helena Marsh",
+    credentials: "MD, FRCP",
+    affiliation: "Department of Geriatric Medicine, Northfield General Hospital",
+    roles: ["reviewer"],
+    isPublic: true,
+    listAsReviewer: true,
+    bio: `${SAMPLE_BIO}\n\nA geriatrician working on recovery after hip fracture, falls and frailty in hospital.`,
+    expertise: ["Geriatrics", "Surgery"],
+    keywords: ["hip fracture", "early mobilization", "frailty"],
+    links: [
+      { kind: "researchgate", url: "https://www.researchgate.net/profile/Sample-Helena-Marsh" },
+      { kind: "website", url: "https://northfield.example/geriatrics/marsh" },
+    ],
+    orcid: true,
+  },
+  { name: "Lucía Ferreira", affiliation: "Department of Endocrinology, Lakeside Medical Center", roles: ["reviewer"], listAsReviewer: true, isPublic: true, expertise: ["Endocrinology"] },
+  { name: "Kwame Asante", affiliation: "School of Pharmacy, Harbor University", roles: ["reviewer"], listAsReviewer: true },
+  { name: "Fatima Rahman", affiliation: "Department of Obstetrics, Northfield General Hospital", roles: ["reviewer"], listAsReviewer: true },
+  { name: "Samir Haddad", affiliation: "Emergency Department, Lakeside Medical Center", roles: ["reviewer"], listAsReviewer: true },
+  { name: "Priya Natarajan", affiliation: "Physiotherapy Department, Eastbrook Hospital", roles: ["reviewer"], listAsReviewer: true },
+];
+
+const SAMPLE_RECORD: OrcidRecord = {
+  givenNames: "Helena",
+  familyName: "Marsh",
+  biography: SAMPLE_BIO,
+  keywords: ["hip fracture", "frailty"],
+  researcherUrls: [],
+  externalIds: [],
+  employments: [
+    {
+      organization: "Northfield General Hospital",
+      department: "Department of Geriatric Medicine",
+      role: "Consultant geriatrician",
+      city: "Northfield",
+      country: "GB",
+      startYear: 2014,
+    },
+    { organization: "Harbor University Hospital", role: "Specialty registrar", city: "Harbor", country: "GB", startYear: 2008, endYear: 2014 },
+  ],
+  educations: [{ organization: "Harbor University", role: "MD", city: "Harbor", country: "GB", startYear: 2002, endYear: 2008 }],
+  works: [
+    { title: "Sample work: delirium after hip fracture surgery in a regional hospital network", journal: "Sample Journal of Geriatrics", year: 2025, type: "journal-article" },
+    { title: "Sample work: who walks again? Mobility at 120 days after hip fracture", journal: "Sample Age and Recovery", year: 2023, type: "journal-article" },
+    { title: "Sample work: a falls clinic for the oldest old", year: 2021, type: "book-chapter" },
+  ],
+  worksCount: 27,
+};
+
+async function seedPeople(ctx: MutationCtx): Promise<number> {
+  if (await ctx.db.query("boardPositions").first()) return 0;
+  const now = Date.now();
+  const articles = await ctx.db.query("articles").take(100);
+  const ids = new Map<string, Id<"users">>();
+
+  for (const [i, person] of SAMPLE_PEOPLE.entries()) {
+    const email = `sample.${slugify(person.name, 40)}@example.org`;
+    const userId = await ctx.db.insert("users", {
+      email,
+      name: person.name,
+      affiliation: person.affiliation,
+      orcid: person.orcid ? "0000-0002-1825-0097" : undefined,
+      ...rolesFields(["author", ...(person.roles ?? [])]),
+      searchText: userSearchText({ name: person.name, email, affiliation: person.affiliation }),
+    });
+    ids.set(person.name, userId);
+    await ctx.db.insert("profiles", {
+      userId,
+      handle: slugify(person.name, 40),
+      isPublic: person.isPublic ?? false,
+      credentials: person.credentials,
+      bio: person.bio,
+      expertise: person.expertise ?? [],
+      keywords: person.keywords ?? [],
+      links: person.links ?? [],
+      showPhoto: false,
+      showOrcidWorks: true,
+      showMetrics: Boolean(person.orcid),
+      listAsReviewer: person.listAsReviewer ?? false,
+      updatedAt: now - i * DAY,
+    });
+    if (person.orcid) {
+      await ctx.db.insert("orcidLinks", {
+        userId,
+        orcid: "0000-0002-1825-0097",
+        accessToken: "sample",
+        linkedAt: now - 3 * DAY,
+        syncedAt: now - 3 * DAY,
+        record: SAMPLE_RECORD,
+        metrics: {
+          source: "openalex",
+          openAlexId: "https://openalex.org/A0000000000",
+          worksCount: 27,
+          citedByCount: 812,
+          hIndex: 14,
+          i10Index: 19,
+          topics: ["Hip fracture care"],
+        },
+        metricsSyncedAt: now - 3 * DAY,
+      });
+    }
+    for (const article of articles) {
+      const position = article.authors.findIndex((a) => a.name === person.name);
+      if (position >= 0) {
+        await ctx.db.insert("authorships", { articleId: article._id, userId, position, publishedAt: article.publishedAt });
+      }
+    }
+  }
+
+  const orders = new Map<BoardGroup, number>();
+  for (const position of SAMPLE_BOARD) {
+    const order = (orders.get(position.group) ?? 0) + 1;
+    orders.set(position.group, order);
+    await ctx.db.insert("boardPositions", {
+      group: position.group,
+      title: position.title,
+      subject: position.subject,
+      userId: position.person ? ids.get(position.person) : undefined,
+      order,
+    });
+  }
+  return SAMPLE_PEOPLE.length;
+}

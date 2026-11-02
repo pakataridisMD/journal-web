@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "./page-header";
 import { PageSkeleton } from "./page-skeleton";
-import { roleNames } from "./profile-form";
+import { roleNames } from "./roles";
 import { ManuscriptList } from "./submission/submissions-list";
 import { dueLabel, timeAgo, useNow } from "./time";
 import { useViewer } from "./viewer-context";

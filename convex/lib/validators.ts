@@ -139,3 +139,84 @@ export const reviewScoresValidator = v.object({
   significance: v.number(),
 });
 export type ReviewScores = Infer<typeof reviewScoresValidator>;
+
+// ---------------------------------------------------------------- people
+
+export const boardGroupValidator = v.union(
+  v.literal("chief"),
+  v.literal("deputy"),
+  v.literal("section"),
+  v.literal("methods"),
+  v.literal("advisory"),
+  v.literal("office"),
+);
+export type BoardGroup = Infer<typeof boardGroupValidator>;
+
+export const linkKindValidator = v.union(
+  v.literal("google_scholar"),
+  v.literal("researchgate"),
+  v.literal("linkedin"),
+  v.literal("scopus"),
+  v.literal("web_of_science"),
+  v.literal("pubmed"),
+  v.literal("website"),
+  v.literal("bluesky"),
+  v.literal("x"),
+);
+export type LinkKind = Infer<typeof linkKindValidator>;
+
+export const profileLinkValidator = v.object({
+  kind: linkKindValidator,
+  url: v.string(),
+});
+export type ProfileLink = Infer<typeof profileLinkValidator>;
+
+/** A job or a degree from an ORCID record. */
+export const orcidAffiliationValidator = v.object({
+  organization: v.string(),
+  department: v.optional(v.string()),
+  role: v.optional(v.string()),
+  city: v.optional(v.string()),
+  country: v.optional(v.string()),
+  startYear: v.optional(v.number()),
+  endYear: v.optional(v.number()),
+});
+export type OrcidAffiliation = Infer<typeof orcidAffiliationValidator>;
+
+export const orcidWorkValidator = v.object({
+  title: v.string(),
+  journal: v.optional(v.string()),
+  year: v.optional(v.number()),
+  type: v.optional(v.string()),
+  doi: v.optional(v.string()),
+  url: v.optional(v.string()),
+});
+export type OrcidWork = Infer<typeof orcidWorkValidator>;
+
+/** The public parts of an ORCID record that profiles use, trimmed to size. */
+export const orcidRecordValidator = v.object({
+  givenNames: v.optional(v.string()),
+  familyName: v.optional(v.string()),
+  creditName: v.optional(v.string()),
+  biography: v.optional(v.string()),
+  keywords: v.array(v.string()),
+  researcherUrls: v.array(v.object({ name: v.string(), url: v.string() })),
+  externalIds: v.array(v.object({ type: v.string(), value: v.string(), url: v.optional(v.string()) })),
+  employments: v.array(orcidAffiliationValidator),
+  educations: v.array(orcidAffiliationValidator),
+  works: v.array(orcidWorkValidator),
+  worksCount: v.number(),
+});
+export type OrcidRecord = Infer<typeof orcidRecordValidator>;
+
+/** Citation counts for a person, from OpenAlex. */
+export const researchMetricsValidator = v.object({
+  source: v.literal("openalex"),
+  openAlexId: v.string(),
+  worksCount: v.number(),
+  citedByCount: v.number(),
+  hIndex: v.optional(v.number()),
+  i10Index: v.optional(v.number()),
+  topics: v.array(v.string()),
+});
+export type ResearchMetrics = Infer<typeof researchMetricsValidator>;

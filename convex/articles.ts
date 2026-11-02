@@ -4,6 +4,7 @@ import { journal, submissionRules } from "../src/config/journal";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import { articleCard, issueRef } from "./lib/articles";
+import { authorHandles, linkAuthors } from "./lib/authorships";
 import { requireRole, requireViewer } from "./lib/auth";
 import { fail } from "./lib/errors";
 import {
@@ -100,9 +101,12 @@ export const getBySlug = query({
       .withIndex("by_slug", (q) => q.eq("slug", slug))
       .unique();
     if (!article || article.status !== "published") return null;
-    const { searchText: _searchText, manuscriptId: _manuscriptId, pdfStorageId, ...rest } = article;
+    const { searchText: _searchText, manuscriptId: _manuscriptId, pdfStorageId, authors, ...rest } = article;
+    const handles = await authorHandles(ctx, article._id);
     return {
       ...rest,
+      /** `profile` is the author's profile address when their profile is on the website. */
+      authors: authors.map((author, i) => ({ ...author, profile: handles.get(i) ?? null })),
       issue: await issueRef(ctx, article.issueId),
       pdfUrl: pdfStorageId ? await ctx.storage.getUrl(pdfStorageId) : null,
     };
@@ -250,6 +254,7 @@ export const publishFromManuscript = mutation({
       articleId,
       updatedAt: now,
     });
+    await linkAuthors(ctx, articleId, m.authors, now);
     await logEvent(ctx, m, "published", viewer._id);
     return articleId;
   },
@@ -274,7 +279,7 @@ export const create = mutation({
     await checkIssue(ctx, args.issueId);
     const now = Date.now();
     const { doi, references, ...rest } = args;
-    return await ctx.db.insert("articles", {
+    const articleId = await ctx.db.insert("articles", {
       ...rest,
       title: args.title.trim(),
       slug: await uniqueSlug(ctx, args.title),
@@ -286,6 +291,8 @@ export const create = mutation({
       license: journal.license.name,
       searchText: articleSearchText(args),
     });
+    await linkAuthors(ctx, articleId, args.authors, now);
+    return articleId;
   },
 });
 

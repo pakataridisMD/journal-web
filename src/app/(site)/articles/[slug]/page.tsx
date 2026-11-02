@@ -248,7 +248,16 @@ function AuthorLine({
     <p className="mt-6 text-[1.0625rem] leading-relaxed">
       {authors.map((author, i) => (
         <span key={`${author.name}-${i}`}>
-          <span className="font-medium">{author.name}</span>
+          {author.profile ? (
+            <Link
+              href={`/people/${author.profile}`}
+              className="font-medium underline decoration-border decoration-1 underline-offset-4 hover:decoration-foreground"
+            >
+              {author.name}
+            </Link>
+          ) : (
+            <span className="font-medium">{author.name}</span>
+          )}
           <sup className="ml-0.5 font-mono text-[0.6875rem] text-muted-foreground">
             {affiliations.indexOf(author.affiliation) + 1}
           </sup>

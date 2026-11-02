@@ -132,7 +132,7 @@ async function ArticleContent({ params }: { params: PageProps<"/articles/[slug]"
           </ol>
         </div>
         <div className="hidden lg:col-span-3 lg:block">
-          <Plate glyph={art.glyph} tone={art.tone} width={240} height={200} scale={0.6} />
+          <Plate glyph={art.glyph} tone={art.tone} width={240} height={200} scale={0.6} draw />
         </div>
       </header>
 

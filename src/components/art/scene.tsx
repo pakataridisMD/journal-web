@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from "react";
+import { inkPath, motion } from "@/components/motion/motion";
 import { cn } from "@/lib/utils";
 import { GRAIN_FILTER, ROUGH_FILTER } from "./art-defs";
 import { GLYPHS } from "./glyph-paths";
@@ -7,16 +8,51 @@ import { SCENES, type Layer, type SceneName, type SceneSpec } from "./scene-path
 
 const list = (d: string | readonly string[]) => (typeof d === "string" ? [d] : d);
 
+/** How many ink lines the layers draw, glyphs included. */
+function inkCount(layers: readonly Layer[]): number {
+  return layers.reduce((sum, layer) => {
+    switch (layer.kind) {
+      case "ink":
+        return sum + list(layer.d).length;
+      case "glyph":
+        return sum + GLYPHS[layer.name].ink.length;
+      case "group":
+        return sum + inkCount(layer.layers);
+      default:
+        return sum;
+    }
+  }, 0);
+}
+
 /**
  * One of the journal's illustrations (see scene-paths.ts), drawn as cut
  * paper and ink. Decorative by default; pass `label` to describe it.
- * Scales to the width of its box.
+ * Scales to the width of its box. With `draw`, it is printed as it comes
+ * into view, like a <Plate>.
  */
-export function Scene({ name, label, className }: { name: SceneName; label?: string; className?: string }) {
+export function Scene({
+  name,
+  label,
+  draw = false,
+  delay,
+  className,
+}: {
+  name: SceneName;
+  label?: string;
+  /** Draw the scene in as it arrives, for the public site. */
+  draw?: boolean;
+  /** With `draw`, wait this many ms first. */
+  delay?: number;
+  className?: string;
+}) {
   const spec: SceneSpec = SCENES[name];
   // Clip-path ids must be unique on the page, even with a scene shown twice.
   const prefix = `scene${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   let clipCount = 0;
+  // Ink lines draw in the order they are painted.
+  const lines = draw ? inkCount(spec.layers) : 0;
+  let line = 0;
+  const ink = (d: string, i: number) => <path key={i} d={d} {...(draw ? inkPath(line++, lines) : {})} />;
 
   /** `scale` is the product of the enclosing groups' scales, so strokes keep their weight. */
   function render(layer: Layer, key: number, scale: number): ReactNode {
@@ -37,6 +73,7 @@ export function Scene({ name, label, className }: { name: SceneName; label?: str
         return (
           <g
             key={key}
+            data-art="ink"
             filter={ROUGH_FILTER}
             fill="none"
             strokeWidth={(layer.w ?? spec.stroke) / scale}
@@ -44,9 +81,7 @@ export function Scene({ name, label, className }: { name: SceneName; label?: str
             strokeLinejoin="round"
             style={{ stroke: layer.tone ? toneColor(layer.tone) : "var(--ink)" }}
           >
-            {list(layer.d).map((d, i) => (
-              <path key={i} d={d} />
-            ))}
+            {list(layer.d).map(ink)}
           </g>
         );
       case "glyph": {
@@ -63,6 +98,7 @@ export function Scene({ name, label, className }: { name: SceneName; label?: str
             </g>
             <g filter={ROUGH_FILTER}>
               <g
+                data-art="ink"
                 transform={turn || undefined}
                 fill="none"
                 strokeWidth={(layer.w ?? spec.stroke) / (scale * unit)}
@@ -70,9 +106,7 @@ export function Scene({ name, label, className }: { name: SceneName; label?: str
                 strokeLinejoin="round"
                 style={{ stroke: "var(--ink)" }}
               >
-                {glyph.ink.map((d, i) => (
-                  <path key={i} d={d} />
-                ))}
+                {glyph.ink.map(ink)}
               </g>
             </g>
           </g>
@@ -107,6 +141,7 @@ export function Scene({ name, label, className }: { name: SceneName; label?: str
       focusable="false"
       className={cn("block h-auto w-full", className)}
       {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
+      {...(draw ? motion("draw", delay) : {})}
     >
       {spec.layers.map((layer, i) => render(layer, i, 1))}
     </svg>

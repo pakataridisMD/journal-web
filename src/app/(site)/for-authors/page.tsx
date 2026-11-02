@@ -40,7 +40,7 @@ export default function ForAuthorsPage() {
       title="Guide for authors"
       lede="Everything you need to prepare a submission. If anything here is unclear, write to the editorial office before you submit."
       sections={SECTIONS}
-      art={<Scene name="manuscript" />}
+      art={<Scene name="manuscript" draw />}
       aside={
         <Button asChild variant="brand" className="w-full">
           <Link href="/dashboard/submissions/new">Submit a manuscript</Link>

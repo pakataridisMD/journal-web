@@ -1,16 +1,20 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { motion } from "@/components/motion/motion";
 import { cn } from "@/lib/utils";
 import { COVERS, type CoverName } from "./cover-images";
 
 /**
  * One of the journal's cover images, cropped to fill its box, so give the box
- * a size. Children are laid over the image, such as a <CoverCredit>.
+ * a size. Children are laid over the image, such as a <CoverCredit>. With
+ * `develop`, the image and its children develop out of the paper as the page
+ * opens, like a print (see motion.ts).
  */
 export function CoverImage({
   name,
   sizes,
   preload = false,
+  develop = false,
   className,
   children,
 }: {
@@ -19,12 +23,13 @@ export function CoverImage({
   sizes: string;
   /** For the largest image at the top of a page. */
   preload?: boolean;
+  develop?: boolean;
   className?: string;
   children?: ReactNode;
 }) {
   const cover = COVERS[name];
   return (
-    <div className={cn("relative overflow-hidden bg-muted", className)}>
+    <div className={cn("relative overflow-hidden bg-muted", className)} {...(develop ? motion("develop") : {})}>
       <Image
         src={cover.src}
         alt={cover.alt}

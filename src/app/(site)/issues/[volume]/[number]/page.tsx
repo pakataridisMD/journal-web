@@ -60,7 +60,7 @@ async function IssueContent({ params }: { params: PageProps<"/issues/[volume]/[n
       <div className="grid gap-12 py-10 md:py-14 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <div className="max-w-[20rem] lg:sticky lg:top-6">
-            <IssueCover issue={issue} articles={articles} />
+            <IssueCover issue={issue} articles={articles} draw />
           </div>
         </div>
         <div className="lg:col-span-8">

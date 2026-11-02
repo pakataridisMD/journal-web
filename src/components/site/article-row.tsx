@@ -29,7 +29,7 @@ export function ArticleRow({
       <Heading className="mt-2.5 font-serif text-[1.375rem] leading-snug tracking-[-0.01em] md:text-title">
         <Link
           href={`/articles/${article.slug}`}
-          className="decoration-1 underline-offset-[5px] after:absolute after:inset-0 group-hover:underline"
+          className="ink-link after:absolute after:inset-0"
         >
           {article.title}
         </Link>

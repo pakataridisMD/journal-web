@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "@/components/motion/motion";
 import { cn } from "@/lib/utils";
 
 export const NAV = [
@@ -16,7 +17,7 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Desktop navigation; the active item carries the vermillion marker. */
+/** Desktop navigation; the active item carries the vermillion marker, which draws in under it. */
 export function NavLinks() {
   const pathname = usePathname();
   return <NavList pathname={pathname} />;
@@ -35,7 +36,7 @@ export function NavList({ pathname }: { pathname: string | null }) {
               className={cn(
                 "relative flex items-center py-3 text-sm font-medium text-foreground transition-colors hover:text-muted-foreground",
                 active &&
-                  "after:absolute after:inset-x-0 after:bottom-[-1px] after:h-[3px] after:bg-brand hover:text-foreground",
+                  "nav-marker after:absolute after:inset-x-0 after:bottom-[-1px] after:h-[3px] after:origin-left after:bg-brand hover:text-foreground",
               )}
             >
               {item.label}
@@ -47,14 +48,15 @@ export function NavList({ pathname }: { pathname: string | null }) {
   );
 }
 
+/** The menu's links rise in one after another as the menu slides open. */
 export function MobileNavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <ul className="flex flex-col">
-      {NAV.map((item) => {
+      {NAV.map((item, i) => {
         const active = isActive(pathname, item.href);
         return (
-          <li key={item.href} className="border-b">
+          <li key={item.href} className="border-b" {...motion("rise", 120 + i * 45)}>
             <Link
               href={item.href}
               onClick={onNavigate}

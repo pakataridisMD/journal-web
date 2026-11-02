@@ -6,6 +6,7 @@ import type { GlyphName } from "@/components/art/glyph-paths";
 import { Plate, toneColor, type PlateTone } from "@/components/art/plate";
 import { Scene } from "@/components/art/scene";
 import type { SceneName } from "@/components/art/scene-paths";
+import { Replay } from "@/components/motion/replay";
 import { CoverCredit, CoverImage } from "@/components/site/cover-image";
 import type { CoverName } from "@/components/site/cover-images";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -14,7 +15,7 @@ import { articleTypes, subjects, type ArticleTypeKey } from "@/config/journal";
 
 export const metadata: Metadata = {
   title: "Style guide",
-  description: "The journal's colours, type, glyphs and illustrations.",
+  description: "The journal's colours, type, glyphs, illustrations and motion.",
   robots: { index: false, follow: false },
 };
 
@@ -51,6 +52,15 @@ const COVER_USES: { name: CoverName; where: string }[] = [
   { name: "fern", where: "Create an account" },
 ];
 
+const MOTION = [
+  { token: "--duration-fast", value: "120 ms", role: "Hover and press feedback; the old page fading out" },
+  { token: "--duration-base", value: "200 ms", role: "Arrows leaning toward their link; the menu closing" },
+  { token: "--duration-slow", value: "320 ms", role: "Underlines drawing in, the menu opening, the next page fading in" },
+  { token: "--duration-reveal", value: "720 ms", role: "Text and plates arriving" },
+  { token: "--duration-draw", value: "1100 ms", role: "Each ink line drawing itself" },
+  { token: "--duration-develop", value: "1600 ms", role: "A cover image developing" },
+] as const;
+
 const TYPE_KEYS = Object.keys(articleTypes) as ArticleTypeKey[];
 
 /** The design system on one page, for editors and anyone extending the site. */
@@ -64,7 +74,7 @@ export default function StyleGuidePage() {
           A modern anatomical atlas: warm paper, black ink, and cut-paper plates in an atlas’s
           colour code. The glyphs and illustrations are drawn for the journal and live in the
           code, so they stay sharp at any size. The cover images are public-domain works from
-          The Met.
+          The Met. Motion follows the printing of an atlas.
         </p>
       </header>
 
@@ -150,7 +160,7 @@ export default function StyleGuidePage() {
         <ul className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-7">
           {TYPE_KEYS.map((t) => (
             <li key={t}>
-              <Plate glyph={TYPE_ART[t].glyph} tone={TYPE_ART[t].tone} width={160} height={120} scale={0.6} stroke={2.6} />
+              <Plate glyph={TYPE_ART[t].glyph} tone={TYPE_ART[t].tone} width={160} height={120} scale={0.6} stroke={2.6} draw />
               <p className="mt-2.5 text-sm">{articleTypes[t].label}</p>
             </li>
           ))}
@@ -179,13 +189,61 @@ export default function StyleGuidePage() {
           {SCENES.map((s) => (
             <li key={s.name}>
               <div className="max-w-[32rem]">
-                <Scene name={s.name} />
+                <Scene name={s.name} draw />
               </div>
               <p className="meta-label mt-4 text-foreground">{s.title}</p>
               <p className="mt-1 text-sm text-muted-foreground">{s.where}</p>
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section id="motion" title="Motion">
+        <p className="max-w-2xl text-muted-foreground">
+          Things arrive the way an atlas is printed: rules are ruled, plates are laid down and
+          inked a line at a time, and cover images develop out of the paper. Each plays once, as
+          it comes into view, and nothing loops. Feedback on hover and press is quick. With
+          reduced motion turned on, everything appears in its final state.
+        </p>
+        <div className="mt-8">
+          <Replay>
+            <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+              <figure>
+                <Plate glyph="cardiology" tone="artery" width={240} height={180} draw />
+                <figcaption className="meta-label mt-4 text-foreground">A plate is printed</figcaption>
+              </figure>
+              <figure>
+                <CoverImage name="spiraea" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" develop className="aspect-[4/3]" />
+                <figcaption className="meta-label mt-4 text-foreground">A cover develops</figcaption>
+              </figure>
+              <figure className="flex flex-col justify-end gap-6 sm:col-span-2 lg:col-span-1">
+                <SectionHeading href="/style-guide#motion" linkLabel="Hover me">
+                  A section is ruled
+                </SectionHeading>
+                <p className="font-serif text-title leading-snug">
+                  <a href="#motion" className="ink-link">
+                    Titles underline themselves as you point at them, a line at a time
+                  </a>
+                </p>
+              </figure>
+            </div>
+          </Replay>
+        </div>
+        <ul className="mt-10 divide-y border-y">
+          {MOTION.map((m) => (
+            <li key={m.token} className="grid gap-1 py-3 sm:grid-cols-[14rem_6rem_1fr] sm:gap-6">
+              <span className="font-mono text-xs leading-6">{m.token}</span>
+              <span className="text-sm leading-6">{m.value}</span>
+              <span className="text-sm leading-6 text-muted-foreground">{m.role}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+          Arrivals ease out hard and settle (<code className="font-mono text-xs">ease-out-quint</code>);
+          underlines and developing covers ease out more evenly, so you see them travel (
+          <code className="font-mono text-xs">ease-out-cubic</code>); drawn lines start and finish gently,
+          like a pen (<code className="font-mono text-xs">ease-in-out-cubic</code>).
+        </p>
       </Section>
     </div>
   );

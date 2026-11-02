@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { SUBJECT_ART, type Subject } from "@/components/art/catalog";
 import { Plate } from "@/components/art/plate";
 import { Scene } from "@/components/art/scene";
+import { motion } from "@/components/motion/motion";
 import { ArticleList } from "@/components/site/article-row";
 import { CoverCredit, CoverImage, CREDIT_LABEL } from "@/components/site/cover-image";
 import type { CoverName } from "@/components/site/cover-images";
@@ -58,8 +59,8 @@ export default async function HomePage() {
           {secondary.length > 0 ? (
             <div className="border-b">
               <div className="page-container grid divide-y md:grid-cols-2 md:divide-x md:divide-y-0">
-                {secondary.map((article) => (
-                  <SecondaryArticle key={article._id} article={article} />
+                {secondary.map((article, i) => (
+                  <SecondaryArticle key={article._id} article={article} delay={300 + i * 100} />
                 ))}
               </div>
             </div>
@@ -95,7 +96,7 @@ export default async function HomePage() {
                 href={`/issues/${issue.volume}/${issue.number}`}
                 className="mt-6 block max-w-[18rem] transition-opacity hover:opacity-90"
               >
-                <IssueCover issue={issue} articles={issue.sections.flatMap((s) => s.articles)} />
+                <IssueCover issue={issue} articles={issue.sections.flatMap((s) => s.articles)} draw />
                 <span className="sr-only">{issueLabel(issue)}</span>
               </Link>
               <div className="mt-8">
@@ -115,7 +116,8 @@ export default async function HomePage() {
 /**
  * The top of the home page, like a journal's cover: the cover image bleeds
  * off the right edge (on top on small screens) beside the cover story or,
- * before the first articles, a welcome.
+ * before the first articles, a welcome. The image develops out of the paper
+ * as the story rises in beside it.
  */
 function Hero({ children }: { children: ReactNode }) {
   return (
@@ -124,12 +126,16 @@ function Hero({ children }: { children: ReactNode }) {
         name={HERO_COVER}
         sizes="(min-width: 1024px) 50vw, 100vw"
         preload
+        develop
         className="aspect-[4/3] sm:aspect-[16/9] lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-1/2"
       >
         <CoverCredit name={HERO_COVER} className={CREDIT_LABEL} />
       </CoverImage>
       <div className="page-container">
-        <div className="flex flex-col justify-center py-10 md:py-14 lg:min-h-[38rem] lg:w-1/2 lg:pr-14">
+        <div
+          className="flex flex-col justify-center py-10 md:py-14 lg:min-h-[38rem] lg:w-1/2 lg:pr-14"
+          {...motion("rise", 120)}
+        >
           {children}
         </div>
       </div>
@@ -151,7 +157,7 @@ function LeadArticle({ article }: { article: ArticleCard }) {
       <h2 className="mt-4 font-serif text-[2rem] leading-[1.08] font-[320] tracking-[-0.025em] md:text-display lg:text-[2.75rem]">
         <Link
           href={`/articles/${article.slug}`}
-          className="decoration-2 underline-offset-[6px] after:absolute after:inset-0 group-hover:underline"
+          className="ink-link [--ink-link-weight:2px] after:absolute after:inset-0"
         >
           {article.title}
         </Link>
@@ -161,22 +167,25 @@ function LeadArticle({ article }: { article: ArticleCard }) {
         {article.snippet}
       </p>
       <p className="mt-6 text-sm font-medium">
-        Read the article <span aria-hidden>→</span>
+        Read the article{" "}
+        <span aria-hidden className="ink-arrow">
+          →
+        </span>
       </p>
     </article>
   );
 }
 
-function SecondaryArticle({ article }: { article: ArticleCard }) {
+function SecondaryArticle({ article, delay }: { article: ArticleCard; delay: number }) {
   return (
-    <article className="group relative py-6 md:py-8 md:odd:pr-12 md:even:pl-12">
+    <article className="group relative py-6 md:py-8 md:odd:pr-12 md:even:pl-12" {...motion("rise", delay)}>
       <p className="meta-label text-muted-foreground">
         <TypeLabel type={article.articleType} />
       </p>
       <h2 className="mt-2.5 font-serif text-title leading-snug">
         <Link
           href={`/articles/${article.slug}`}
-          className="decoration-1 underline-offset-[5px] after:absolute after:inset-0 group-hover:underline"
+          className="ink-link after:absolute after:inset-0"
         >
           {article.title}
         </Link>
@@ -226,7 +235,7 @@ function Specialty({ subject }: { subject: Subject }) {
   const art = SUBJECT_ART[subject];
   return (
     <li>
-      <Plate glyph={art.glyph} tone={art.tone} width={160} height={120} scale={0.6} stroke={2.6} />
+      <Plate glyph={art.glyph} tone={art.tone} width={160} height={120} scale={0.6} stroke={2.6} draw />
       <p className="mt-2 text-[0.8125rem] leading-snug sm:mt-2.5 sm:text-sm">{subject}</p>
     </li>
   );
@@ -243,7 +252,7 @@ function ForAuthorsBand() {
     <section aria-labelledby="authors-heading" className="border-t bg-background">
       <div className="page-container grid items-center gap-10 py-16 lg:grid-cols-12 lg:gap-12">
         <div className="mx-auto w-full max-w-[32rem] lg:col-span-5">
-          <Scene name="manuscript" />
+          <Scene name="manuscript" draw />
         </div>
         <div className="lg:col-span-6 lg:col-start-7">
           <p className="meta-label text-muted-foreground">For authors</p>

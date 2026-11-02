@@ -123,7 +123,7 @@ async function Results({ searchParams }: { searchParams: PageProps<"/articles">[
       {page.articles.length === 0 ? (
         <div className="py-14 text-center">
           <div className="mx-auto w-full max-w-xs">
-            <Scene name="closeReading" />
+            <Scene name="closeReading" draw />
           </div>
           <p className="mt-6 text-muted-foreground">
             {search.type

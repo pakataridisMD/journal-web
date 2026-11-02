@@ -26,7 +26,7 @@ export default function AboutPage() {
       title={`About ${journal.name}`}
       lede={journal.description}
       sections={SECTIONS}
-      art={<Scene name="helix" />}
+      art={<Scene name="helix" draw />}
     >
       <DocSection id="aims" title="Aims and scope">
         <p>

@@ -1,7 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { adminEmails, getViewer, hasRole, requireRole, requireViewer } from "./lib/auth";
+import { adminEmails, getViewer, hasRole, requireRole } from "./lib/auth";
 import { fail } from "./lib/errors";
 import {
   findByEmail,
@@ -10,7 +10,7 @@ import {
   rolesFields,
   withRoles,
 } from "./lib/people";
-import { isValidOrcid, normalizeEmail, userSearchText } from "./lib/text";
+import { normalizeEmail, userSearchText } from "./lib/text";
 import { roleValidator } from "./lib/validators";
 
 /**
@@ -116,35 +116,6 @@ export const me = query({
       isAdmin: hasRole(viewer, "admin"),
       isReviewer: hasRole(viewer, "reviewer"),
     };
-  },
-});
-
-export const updateProfile = mutation({
-  args: {
-    name: v.string(),
-    affiliation: v.optional(v.string()),
-    orcid: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const viewer = await requireViewer(ctx);
-    const name = args.name.trim();
-    if (!name || name.length > 120) {
-      fail("INVALID_INPUT", "Enter your name (up to 120 characters).");
-    }
-    const affiliation = args.affiliation?.trim() || undefined;
-    if (affiliation && affiliation.length > 300) {
-      fail("INVALID_INPUT", "Affiliation is too long (300 characters at most).");
-    }
-    const orcid = args.orcid?.trim().toUpperCase() || undefined;
-    if (orcid && !isValidOrcid(orcid)) {
-      fail("INVALID_INPUT", "That ORCID iD isn't valid. It looks like 0000-0002-1825-0097.");
-    }
-    await ctx.db.patch("users", viewer._id, {
-      name,
-      affiliation,
-      orcid,
-      searchText: userSearchText({ name, email: viewer.email, affiliation }),
-    });
   },
 });
 

@@ -8,7 +8,7 @@ Built with Next.js 16 (App Router, Cache Components), Clerk, Convex, Tailwind CS
 
 ## What it does
 
-**Public site.** Home page with featured and latest articles and the current issue; an article list with type filters and full-text search; article pages with the structured abstract, body, references, a citation to copy, peer review dates and a PDF download; an issue archive; about, editorial board and author guidelines pages; a sitemap and robots file.
+**Public site.** Home page with featured and latest articles and the current issue; an article list with type filters and full-text search; article pages with the structured abstract, body, references, a citation to copy, peer review dates and a PDF download; an issue archive; about and author guidelines pages; a **Who we are** page with the mission, the editorial board and the reviewers; public profiles for editors, reviewers and authors, with their ORCID iD, links elsewhere and the articles they published here; a sitemap and robots file.
 
 **Dashboard** (sign-in required). What people see depends on their roles:
 
@@ -17,7 +17,9 @@ Built with Next.js 16 (App Router, Cache Components), Clerk, Convex, Tailwind CS
 | Author (everyone) | Submit through a five-step wizard that saves as they type: details, authors, files, declarations, final check. Follow the status, read decision letters with the reviewers' comments, revise and resubmit, withdraw. |
 | Reviewer | Accept or decline invitations, open the anonymized files, write a report (recommendation, four scores, comments to the authors, confidential comments to the editor) that saves as they type. |
 | Editor | Work the editorial queue, take manuscripts, invite reviewers (existing accounts or new people), follow reports, send decisions from letter templates, prepare accepted manuscripts for publication and edit published articles. |
-| Editor-in-chief | Everything editors can, plus assign manuscripts to editors, manage volumes and issues, and give people roles. |
+| Editor-in-chief | Everything editors can, plus assign manuscripts to editors, manage volumes and issues, give people roles, and set up the editorial board shown on the Who we are page. |
+
+Everyone also has a **Profile** page: name, degrees, affiliation, bio, specialties, links to Google Scholar, ResearchGate, LinkedIn and others, and their ORCID iD.
 
 Peer review is double-blind. Reviewers never see the title page or author names, and authors see reviewers only as "Reviewer 1", "Reviewer 2", after a decision. Editors can't handle or review a manuscript they wrote.
 
@@ -54,11 +56,13 @@ You need Node.js 20 or newer, a [Clerk](https://clerk.com) account and a [Convex
    npm run dev
    ```
 
-6. Optional: add sample articles and issues to preview the public site. Every sample says it is a sample. Run this on development deployments only.
+6. Optional: add sample articles, issues, an editorial board and reviewer profiles to preview the public site. Every sample says it is a sample. Run this on development deployments only.
 
    ```bash
    npm run seed
    ```
+
+   A development deployment seeded before profiles existed can get just the sample people with `npx convex run seed:people`.
 
 ## Connect Clerk
 
@@ -90,6 +94,42 @@ You need Node.js 20 or newer, a [Clerk](https://clerk.com) account and a [Convex
 
 The app uses its own `/sign-in` and `/sign-up` pages and sends people to the dashboard afterwards; that is set in code, so there is nothing to configure for it.
 
+## Profiles and ORCID
+
+A profile stays private until its owner switches on **Show my profile on the journal's website**. Editorial board members are shown because they are on the board. A public profile shows the name, degrees, affiliation, bio, specialties, links, ORCID iD and the articles the person published in the journal. It never shows an email address or what someone reviewed. Each person chooses whether to show their photo, the works from their ORCID record, citation counts, and whether to be named among the reviewers.
+
+Published articles link each author to their profile when the author's email belongs to a verified account, or their ORCID iD to a connected one. Publishing does this by itself. On a deployment that already had published articles before profiles existed, run this once (add `--prod` for production):
+
+```bash
+npx convex run authorships:backfill
+```
+
+The board starts as a list of suggested positions, shown as open on the website. The editor-in-chief edits it under **Editorial board** in the dashboard and appoints people with accounts.
+
+### Connect ORCID (optional)
+
+Without it, people can type their ORCID iD in, and the profile marks it as unauthenticated, as ORCID's display guidelines ask. With it, people press **Connect your ORCID iD**, sign in at ORCID, and come back with a verified iD. The journal then reads their public ORCID record, so the profile can list their recent works, jobs and degrees and offer to fill in the bio, keywords and links.
+
+1. Sign in at [orcid.org](https://orcid.org) with the ORCID account that will own the credentials, open **Developer tools** and register for the free Public API. The Public API is for non-commercial use; a journal that charges fees or is run commercially needs an [ORCID membership](https://info.orcid.org/what-is-orcid/services/member-api/) (Member API) instead.
+2. Name the application after the journal, give the website address, and add this redirect URI (and your own domain once you have one):
+
+   ```
+   https://journal-web-lovat.vercel.app/dashboard/profile/orcid
+   ```
+
+3. Give the credentials to Convex. The Connect button appears once both are set.
+
+   ```bash
+   npx convex env set ORCID_CLIENT_ID APP-XXXXXXXXXXXXXXXX
+   npx convex env set ORCID_CLIENT_SECRET your-client-secret
+   ```
+
+   To try it first, register a client on the [ORCID sandbox](https://sandbox.orcid.org) instead and also set `ORCID_SANDBOX=true`. Sandbox iDs only work with sandbox credentials.
+
+4. Optional: profiles can show works, citation and h-index counts from [OpenAlex](https://openalex.org). This works without a key; a free `OPENALEX_API_KEY` raises OpenAlex's limits.
+
+The journal asks ORCID only for `/authenticate`: it learns the iD and reads what is public. It can't write to anyone's ORCID record. That needs the Member API.
+
 ## Environment variables
 
 | Name | Set in | Purpose |
@@ -102,6 +142,9 @@ The app uses its own `/sign-in` and `/sign-up` pages and sends people to the das
 | `CONVEX_DEPLOY_KEY` | Vercel | Production deploy key from the Convex dashboard, so builds can deploy the functions. |
 | `CLERK_JWT_ISSUER_DOMAIN` | Convex | Clerk Frontend API URL (see above). |
 | `JOURNAL_ADMIN_EMAILS` | Convex | Comma-separated emails that become editors-in-chief when they sign in. Others get roles from the **People and roles** page. |
+| `ORCID_CLIENT_ID`, `ORCID_CLIENT_SECRET` | Convex | Optional. ORCID Public API credentials for connecting iDs (see above). |
+| `ORCID_SANDBOX` | Convex | Optional. `true` to use sandbox.orcid.org while testing. |
+| `OPENALEX_API_KEY` | Convex | Optional. Raises OpenAlex's limits for citation counts. |
 
 ## Deploy
 
@@ -136,7 +179,7 @@ Tests use [convex-test](https://docs.convex.dev/testing/convex-test) and cover p
 | --- | --- |
 | `src/app/(site)` | Public pages, rendered on the server and cached for up to an hour |
 | `src/app/dashboard` | Signed-in pages, rendered in the browser |
-| `src/components/site`, `src/components/dashboard` | Page components |
+| `src/components/site`, `src/components/dashboard` | Page components (`site/people` holds the portraits and board cards) |
 | `src/components/ui` | shadcn/ui components, restyled for the journal |
 | `src/components/art` | The journal's glyphs, plates and illustrations, drawn as SVG path data (see `/style-guide`) |
 | `src/assets/images` | Cover images: public-domain works from The Met, credited in `src/components/site/cover-images.ts` |
@@ -148,8 +191,9 @@ Security lives in Convex: every query and mutation checks who is calling and wha
 
 ## Before launch
 
-- Fill in the name, ISSN, publisher and contact email in `src/config/journal.ts`, and the editorial board in `src/app/(site)/editorial-board/page.tsx`.
+- Fill in the name, ISSN, publisher and contact email in `src/config/journal.ts`. Adjust the mission on the Who we are page (`src/app/(site)/who-we-are/page.tsx`) and set up the editorial board from the dashboard.
 - The policy text on the about and author guidelines pages is a starting draft. Have it reviewed against COPE, ICMJE and your publisher's requirements.
 - The journal doesn't send email yet. Invitations, decisions and revision requests appear in each person's dashboard, so editors need to tell people when something is waiting.
+- ORCID iDs are verified when people connect them, but the journal doesn't write works or reviews back to ORCID records; that needs an ORCID membership. Once DOIs are registered with Crossref and include the authors' ORCID iDs, ORCID can add the articles to their records automatically (Crossref auto-update).
 - DOIs are typed in by hand. Registering them needs a Crossref membership; there is no automatic deposit or JATS export yet.
 - Uploads are limited to 50 MB per file. Files that never get attached to a manuscript are deleted nightly.

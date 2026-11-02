@@ -86,34 +86,6 @@ describe("users.me", () => {
   });
 });
 
-describe("users.updateProfile", () => {
-  test("saves name, affiliation and a valid ORCID iD", async () => {
-    const t = setup();
-    const { as } = await signIn(t);
-    await as.mutation(api.users.updateProfile, {
-      name: "Dr Ana Ruiz",
-      affiliation: "Hospital General",
-      orcid: "0000-0002-1825-0097",
-    });
-    expect(await as.query(api.users.me, {})).toMatchObject({
-      name: "Dr Ana Ruiz",
-      affiliation: "Hospital General",
-      orcid: "0000-0002-1825-0097",
-    });
-  });
-
-  test("rejects an ORCID iD with a bad check digit", async () => {
-    const t = setup();
-    const { as } = await signIn(t);
-    await expect(
-      as.mutation(api.users.updateProfile, {
-        name: "Ana",
-        orcid: "0000-0002-1825-0098",
-      }),
-    ).rejects.toThrow(/ORCID/);
-  });
-});
-
 describe("roles", () => {
   test("only admins change roles, and not their own admin role", async () => {
     const t = setup();

@@ -4,13 +4,17 @@ import {
   abstractSectionValidator,
   articleAuthorValidator,
   articleTypeValidator,
+  boardGroupValidator,
   declarationsValidator,
   decisionKindValidator,
   eventTypeValidator,
   fileKindValidator,
   manuscriptAuthorValidator,
   manuscriptStatusValidator,
+  orcidRecordValidator,
+  profileLinkValidator,
   recommendationValidator,
+  researchMetricsValidator,
   reviewScoresValidator,
   reviewStatusValidator,
   roleValidator,
@@ -38,8 +42,79 @@ export default defineSchema({
   })
     .index("by_token", ["tokenIdentifier"])
     .index("by_email", ["email"])
+    .index("by_orcid", ["orcid"])
     .index("by_is_editor", ["isEditor"])
     .searchIndex("search_people", { searchField: "searchText" }),
+
+  /**
+   * A person's public profile, one per user, made when they first save it or
+   * are appointed to the board. Kept apart from users, which every request
+   * reads, so the bio and links don't travel with each permission check.
+   */
+  profiles: defineTable({
+    userId: v.id("users"),
+    /** Profile address: /people/{handle}. Unique. */
+    handle: v.string(),
+    /** The person chose to show their profile. Board members are shown regardless. */
+    isPublic: v.boolean(),
+    credentials: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    /** Subjects from the journal's list. */
+    expertise: v.array(v.string()),
+    keywords: v.array(v.string()),
+    links: v.array(profileLinkValidator),
+    showPhoto: v.boolean(),
+    showOrcidWorks: v.boolean(),
+    showMetrics: v.boolean(),
+    /** Named among the journal's reviewers on the Who we are page (reviewers only). */
+    listAsReviewer: v.boolean(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_handle", ["handle"])
+    .index("by_public", ["isPublic"])
+    .index("by_listed_reviewer", ["listAsReviewer"]),
+
+  /**
+   * An ORCID iD the person proved is theirs by signing in to ORCID, with the
+   * public record as last fetched. The token only reads public data; no query
+   * returns it.
+   */
+  orcidLinks: defineTable({
+    userId: v.id("users"),
+    orcid: v.string(),
+    accessToken: v.string(),
+    linkedAt: v.number(),
+    syncedAt: v.optional(v.number()),
+    record: v.optional(orcidRecordValidator),
+    metrics: v.optional(researchMetricsValidator),
+    metricsSyncedAt: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_orcid", ["orcid"]),
+
+  /** Positions on the editorial board; a position without a person is open. */
+  boardPositions: defineTable({
+    group: boardGroupValidator,
+    title: v.string(),
+    /** One of the journal's subjects; gives the position its glyph. */
+    subject: v.optional(v.string()),
+    userId: v.optional(v.id("users")),
+    order: v.number(),
+  })
+    .index("by_group", ["group", "order"])
+    .index("by_user", ["userId"]),
+
+  /** Which published articles a person wrote, matched by verified email or ORCID iD. */
+  authorships: defineTable({
+    articleId: v.id("articles"),
+    userId: v.id("users"),
+    /** The author's place in the byline, from 0. */
+    position: v.number(),
+    publishedAt: v.number(),
+  })
+    .index("by_user", ["userId", "publishedAt"])
+    .index("by_article", ["articleId", "position"]),
 
   /** Monotonic counters, e.g. manuscript numbers per year. */
   counters: defineTable({

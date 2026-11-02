@@ -9,7 +9,8 @@ const COLUMNS = [
       { href: "/articles", label: "All articles" },
       { href: "/issues", label: "Issue archive" },
       { href: "/about", label: "About the journal" },
-      { href: "/editorial-board", label: "Editorial board" },
+      { href: "/who-we-are", label: "Who we are" },
+      { href: "/who-we-are#editorial-board", label: "Editorial board" },
     ],
   },
   {

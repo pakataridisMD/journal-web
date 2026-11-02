@@ -222,3 +222,77 @@ export const submissionRules = {
   /** Days a reviewer has to submit after an invitation, by default. */
   defaultReviewDays: 21,
 } as const;
+
+/**
+ * The editorial board, shown on the Who we are page. People are appointed to
+ * positions from the dashboard (Editorial board); these are the groups the
+ * positions sit in, in page order.
+ */
+export type BoardGroupKey = "chief" | "deputy" | "section" | "methods" | "advisory" | "office";
+
+export const boardGroups: Record<BoardGroupKey, { label: string; description: string }> = {
+  chief: {
+    label: "Editor-in-chief",
+    description: "Sets the journal's direction and has the final word on every decision.",
+  },
+  deputy: {
+    label: "Deputy editors",
+    description: "Lead the research and the review and education sections.",
+  },
+  section: {
+    label: "Section editors",
+    description: "Handle manuscripts in their specialty, choose reviewers and recommend decisions.",
+  },
+  methods: {
+    label: "Statistics and research integrity",
+    description: "Check the methods and statistics of research papers and look into concerns.",
+  },
+  advisory: {
+    label: "Advisory board",
+    description: "Advise on scope and policy, and review for the journal.",
+  },
+  office: {
+    label: "Editorial office",
+    description: "Runs peer review and production, and answers authors' questions.",
+  },
+};
+
+export const boardGroupOrder: readonly BoardGroupKey[] = [
+  "chief",
+  "deputy",
+  "section",
+  "methods",
+  "advisory",
+  "office",
+];
+
+/**
+ * The board the journal is recruiting for. Shown as open positions until the
+ * editor-in-chief sets up the board in the dashboard, which can start from it.
+ * `subject` must be one of `subjects` (it gives the position its glyph).
+ */
+export const suggestedBoard: readonly { group: BoardGroupKey; title: string; subject?: (typeof subjects)[number] }[] = [
+  { group: "chief", title: "Editor-in-chief" },
+  { group: "deputy", title: "Deputy editor, clinical research" },
+  { group: "deputy", title: "Deputy editor, reviews and education" },
+  { group: "section", title: "Section editor, cardiology", subject: "Cardiology" },
+  { group: "section", title: "Section editor, emergency medicine", subject: "Emergency medicine" },
+  { group: "section", title: "Section editor, general practice", subject: "General practice" },
+  { group: "section", title: "Section editor, infectious diseases", subject: "Infectious diseases" },
+  { group: "section", title: "Section editor, oncology", subject: "Oncology" },
+  { group: "section", title: "Section editor, pediatrics", subject: "Pediatrics" },
+  { group: "methods", title: "Statistical editor" },
+  { group: "methods", title: "Research integrity editor" },
+  { group: "office", title: "Managing editor" },
+];
+
+/** Limits for public profiles. */
+export const profileRules = {
+  maxBio: 1500,
+  maxCredentials: 80,
+  maxExpertise: 5,
+  maxKeywords: 10,
+  maxKeywordLength: 60,
+  /** Works from ORCID shown on a profile. */
+  maxWorksShown: 10,
+} as const;

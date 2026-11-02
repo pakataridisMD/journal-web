@@ -9,20 +9,28 @@
  */
 
 import type * as articles from "../articles.js";
+import type * as authorships from "../authorships.js";
+import type * as board from "../board.js";
 import type * as crons from "../crons.js";
 import type * as editorial from "../editorial.js";
 import type * as files from "../files.js";
 import type * as issues from "../issues.js";
 import type * as lib_articles from "../lib/articles.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_authorships from "../lib/authorships.js";
 import type * as lib_errors from "../lib/errors.js";
 import type * as lib_labels from "../lib/labels.js";
 import type * as lib_manuscripts from "../lib/manuscripts.js";
+import type * as lib_orcid from "../lib/orcid.js";
 import type * as lib_people from "../lib/people.js";
+import type * as lib_profileFields from "../lib/profileFields.js";
+import type * as lib_profiles from "../lib/profiles.js";
 import type * as lib_submission from "../lib/submission.js";
 import type * as lib_text from "../lib/text.js";
 import type * as lib_validators from "../lib/validators.js";
 import type * as manuscripts from "../manuscripts.js";
+import type * as orcid from "../orcid.js";
+import type * as profiles from "../profiles.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
@@ -35,20 +43,28 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   articles: typeof articles;
+  authorships: typeof authorships;
+  board: typeof board;
   crons: typeof crons;
   editorial: typeof editorial;
   files: typeof files;
   issues: typeof issues;
   "lib/articles": typeof lib_articles;
   "lib/auth": typeof lib_auth;
+  "lib/authorships": typeof lib_authorships;
   "lib/errors": typeof lib_errors;
   "lib/labels": typeof lib_labels;
   "lib/manuscripts": typeof lib_manuscripts;
+  "lib/orcid": typeof lib_orcid;
   "lib/people": typeof lib_people;
+  "lib/profileFields": typeof lib_profileFields;
+  "lib/profiles": typeof lib_profiles;
   "lib/submission": typeof lib_submission;
   "lib/text": typeof lib_text;
   "lib/validators": typeof lib_validators;
   manuscripts: typeof manuscripts;
+  orcid: typeof orcid;
+  profiles: typeof profiles;
   reviews: typeof reviews;
   seed: typeof seed;
   users: typeof users;

@@ -9,7 +9,7 @@ export const NAV = [
   { href: "/issues", label: "Issues" },
   { href: "/for-authors", label: "For authors" },
   { href: "/about", label: "About" },
-  { href: "/editorial-board", label: "Editorial board" },
+  { href: "/who-we-are", label: "Who we are" },
 ] as const;
 
 function isActive(pathname: string, href: string) {
